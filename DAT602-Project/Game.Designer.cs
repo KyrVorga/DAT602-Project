@@ -43,60 +43,60 @@
             // leaderboard_box
             // 
             leaderboard_box.FormattingEnabled = true;
-            leaderboard_box.ItemHeight = 30;
+            leaderboard_box.ItemHeight = 15;
             leaderboard_box.Items.AddRange(new object[] { "item", "item1" });
-            leaderboard_box.Location = new Point(18, 56);
-            leaderboard_box.Margin = new Padding(4);
+            leaderboard_box.Location = new Point(10, 28);
+            leaderboard_box.Margin = new Padding(2, 2, 2, 2);
             leaderboard_box.Name = "leaderboard_box";
-            leaderboard_box.Size = new Size(302, 214);
+            leaderboard_box.Size = new Size(178, 109);
             leaderboard_box.TabIndex = 0;
             // 
             // label_leaderboard
             // 
             label_leaderboard.AutoSize = true;
-            label_leaderboard.Location = new Point(18, 23);
-            label_leaderboard.Margin = new Padding(4, 0, 4, 0);
+            label_leaderboard.Location = new Point(10, 12);
+            label_leaderboard.Margin = new Padding(2, 0, 2, 0);
             label_leaderboard.Name = "label_leaderboard";
-            label_leaderboard.Size = new Size(129, 30);
+            label_leaderboard.Size = new Size(73, 15);
             label_leaderboard.TabIndex = 1;
             label_leaderboard.Text = "Leaderboard";
             // 
             // chat_box
             // 
             chat_box.FormattingEnabled = true;
-            chat_box.ItemHeight = 30;
-            chat_box.Location = new Point(18, 356);
-            chat_box.Margin = new Padding(4);
+            chat_box.ItemHeight = 15;
+            chat_box.Location = new Point(10, 178);
+            chat_box.Margin = new Padding(2, 2, 2, 2);
             chat_box.Name = "chat_box";
-            chat_box.Size = new Size(302, 214);
+            chat_box.Size = new Size(178, 109);
             chat_box.TabIndex = 2;
             // 
             // label_chat
             // 
             label_chat.AutoSize = true;
-            label_chat.Location = new Point(18, 323);
-            label_chat.Margin = new Padding(4, 0, 4, 0);
+            label_chat.Location = new Point(10, 162);
+            label_chat.Margin = new Padding(2, 0, 2, 0);
             label_chat.Name = "label_chat";
-            label_chat.Size = new Size(56, 30);
+            label_chat.Size = new Size(32, 15);
             label_chat.TabIndex = 3;
             label_chat.Text = "Chat";
             // 
             // chat_input
             // 
-            chat_input.Location = new Point(18, 593);
-            chat_input.Margin = new Padding(4);
+            chat_input.Location = new Point(10, 296);
+            chat_input.Margin = new Padding(2, 2, 2, 2);
             chat_input.MaxLength = 500;
             chat_input.Name = "chat_input";
             chat_input.PlaceholderText = "Enter Message";
-            chat_input.Size = new Size(302, 35);
+            chat_input.Size = new Size(178, 23);
             chat_input.TabIndex = 4;
             // 
             // update_chat_button
             // 
-            update_chat_button.Location = new Point(167, 312);
-            update_chat_button.Margin = new Padding(4);
+            update_chat_button.Location = new Point(97, 156);
+            update_chat_button.Margin = new Padding(2, 2, 2, 2);
             update_chat_button.Name = "update_chat_button";
-            update_chat_button.Size = new Size(154, 41);
+            update_chat_button.Size = new Size(90, 20);
             update_chat_button.TabIndex = 5;
             update_chat_button.Text = "Update";
             update_chat_button.UseVisualStyleBackColor = true;
@@ -104,10 +104,10 @@
             // 
             // update_leaderboard_button
             // 
-            update_leaderboard_button.Location = new Point(167, 8);
-            update_leaderboard_button.Margin = new Padding(4);
+            update_leaderboard_button.Location = new Point(97, 4);
+            update_leaderboard_button.Margin = new Padding(2, 2, 2, 2);
             update_leaderboard_button.Name = "update_leaderboard_button";
-            update_leaderboard_button.Size = new Size(154, 41);
+            update_leaderboard_button.Size = new Size(90, 20);
             update_leaderboard_button.TabIndex = 6;
             update_leaderboard_button.Text = "Update";
             update_leaderboard_button.UseVisualStyleBackColor = true;
@@ -115,10 +115,10 @@
             // 
             // settings_button
             // 
-            settings_button.Location = new Point(1114, 23);
-            settings_button.Margin = new Padding(4);
+            settings_button.Location = new Point(650, 12);
+            settings_button.Margin = new Padding(2, 2, 2, 2);
             settings_button.Name = "settings_button";
-            settings_button.Size = new Size(108, 49);
+            settings_button.Size = new Size(63, 24);
             settings_button.TabIndex = 7;
             settings_button.Text = "Settings";
             settings_button.UseVisualStyleBackColor = true;
@@ -126,9 +126,10 @@
             // 
             // GetTilesTest
             // 
-            GetTilesTest.Location = new Point(425, 591);
+            GetTilesTest.Location = new Point(248, 296);
+            GetTilesTest.Margin = new Padding(2, 2, 2, 2);
             GetTilesTest.Name = "GetTilesTest";
-            GetTilesTest.Size = new Size(131, 40);
+            GetTilesTest.Size = new Size(76, 20);
             GetTilesTest.TabIndex = 8;
             GetTilesTest.Text = "GetTiles";
             GetTilesTest.UseVisualStyleBackColor = true;
@@ -137,17 +138,18 @@
             // Tiles
             // 
             Tiles.FormattingEnabled = true;
-            Tiles.ItemHeight = 30;
-            Tiles.Location = new Point(472, 366);
+            Tiles.ItemHeight = 15;
+            Tiles.Location = new Point(275, 183);
+            Tiles.Margin = new Padding(2, 2, 2, 2);
             Tiles.Name = "Tiles";
-            Tiles.Size = new Size(210, 154);
+            Tiles.Size = new Size(124, 64);
             Tiles.TabIndex = 9;
             // 
             // Game
             // 
-            AutoScaleDimensions = new SizeF(12F, 30F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1250, 697);
+            ClientSize = new Size(729, 348);
             Controls.Add(Tiles);
             Controls.Add(GetTilesTest);
             Controls.Add(settings_button);
@@ -158,7 +160,7 @@
             Controls.Add(chat_box);
             Controls.Add(label_leaderboard);
             Controls.Add(leaderboard_box);
-            Margin = new Padding(4);
+            Margin = new Padding(2, 2, 2, 2);
             Name = "Game";
             Text = "Game";
             ResumeLayout(false);

@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using DAT602_Project;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -82,11 +83,13 @@ namespace Battlespire
             procedure_params.Add(_viewport_height);
 
             DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetTilesByPlayer(@player_id, @viewport_width, @viewport_height)", procedure_params.ToArray());
-
+            
             var tile_list = new List<String>();
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
-                tile_list.Add(row[0].ToString());
+                var newTile = new Tile((int)row[0], (int)row[1], (int)row[2], (string)row[3]);
+                tile_list.Add(newTile.ToString());
+                Console.WriteLine(newTile.ToString());
             }
 
             return tile_list;

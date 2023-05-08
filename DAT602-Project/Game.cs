@@ -93,6 +93,7 @@ namespace Battlespire
         private void GetTilesTest_Click(object sender, EventArgs e)
         {
             GameDAO db_connection = new();
+            //db_connection.GetTilesByPlayer(82);
             UpdateListbox(Tiles, db_connection.GetTilesByPlayer(82));
         }
     }
