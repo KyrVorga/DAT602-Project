@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DAT602_Project;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -18,18 +19,15 @@ namespace Battlespire
         private SettingsAdmin _settings_admin;
         private SettingsUser _settings_user;
         private String _username;
-        private int _form_height;
-        private int _form_width;
 
         public Game(Login login, String username)
         {
             _login_form = login;
             _username = username;
-            _form_height = this.Height;
-            _form_width = this.Width;
 
             InitializeComponent();
-            GenerateBoard();
+            GameDAO db_connection = new();
+            GenerateBoard(db_connection.GetTilesByPlayer(82));
         }
 
         private void update_chat_button_Click(object sender, EventArgs e)
@@ -72,28 +70,39 @@ namespace Battlespire
             }
         }
 
-        private void GenerateBoard()
+        private void GenerateBoard(List<Tile> viewport_tiles)
         {
-            PictureBox pictureBox;
+            //for (int row = 10; row < 10; row++)
+            //{
+            //    for (int col = 10; col < 10; col++)
+            //    {
+            //        PictureBox pictureBox = new PictureBox();
+            //        pictureBox.BackColor = Color.Gray;
+            //        pictureBox.Width = 50;
+            //        pictureBox.Height = 50;
 
-            for (int row = 10; row < 10; row++)
+            //        pictureBox.Location = new Point(100 + (row * pictureBox.Height + 1), 100 + (col * pictureBox.Width + 1));
+            //    }
+            //}
+            var tiles_accross = 11;
+            var tile_border = 1 * tiles_accross;
+            var board_width = this.board_panel.Width - tile_border;
+            var board_height = this.board_panel.Height - tile_border;
+            var tile_width = board_width / tiles_accross;
+            var tile_height = board_height / tiles_accross;
+
+            viewport_tiles.ForEach(tile =>
             {
-                for (int col = 10; col < 10; col++)
-                {
-                    pictureBox = new PictureBox();
-                    pictureBox.BackColor = Color.Gray;
-                    pictureBox.Width = 50;
-                    pictureBox.Height = 50;
+                Console.WriteLine(tile.ToString());
+                PictureBox pictureBox = new PictureBox();
+                pictureBox.BackColor = Color.Gray;
+                pictureBox.Width = tile_width;
+                pictureBox.Height = tile_height;
 
-                    pictureBox.Location = new Point(100 + (row * pictureBox.Height + 1), 100 + (col * pictureBox.Width + 1));
-                }
-            }
-        }
+                pictureBox.Location = new Point(board_width / 2 + tile.X * (pictureBox.Height + 1), board_height / 2 + tile.Y * (pictureBox.Width + 1));
 
-        private void GetTilesTest_Click(object sender, EventArgs e)
-        {
-            GameDAO db_connection = new();
-            UpdateListbox(Tiles, db_connection.GetTilesByPlayer(82));
+                board_panel.Controls.Add(pictureBox);
+            });
         }
     }
 }
