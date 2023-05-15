@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Battlespire;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DAT602_Project
 {
-    internal class Tile
+    public class Tile
     {
         private int _id;
         private int _x;
@@ -27,7 +28,15 @@ namespace DAT602_Project
 
         public override string ToString()
         {
-            return string.Format("ID:{0} | X:{1} | Y: {2} | Type:{3}", Id, X, Y, Tile_type);
+            return string.Format("ID:{0} | X:{1} | Y:{2} | Type:{3}", Id, X, Y, Tile_type);
+        }
+        public void tile_Click(object sender, EventArgs e)
+        {
+            PictureBox pictureBox = (PictureBox)sender;
+            MessageBox.Show(this.ToString());
+            int target_tile_id = int.Parse(pictureBox.Name);
+            Game.Current_player.PlayerMove(target_tile_id);
+            Game.UpdateBoard();
         }
     }
 }

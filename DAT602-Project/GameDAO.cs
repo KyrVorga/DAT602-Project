@@ -89,10 +89,78 @@ namespace Battlespire
             {
                 var newTile = new Tile((int)row[0], (int)row[1], (int)row[2], (string)row[3]);
                 tile_list.Add(newTile);
-                //Console.WriteLine(newTile.ToString());
             }
 
             return tile_list;
+        }
+
+        public List<Entity> LoadEntities()
+        {
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetAllEntities()");
+
+            var entity_list = new List<Entity>();
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+                if ((string)row["entity_type"] == "player")
+                {
+                    Entity newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
+                    entity_list.Add(newEntity);
+                }
+                else if ((string)row["entity_type"] == "monster")
+                {
+                    Entity newEntity = new Monster((int)row["entity_id"], (string)row["name"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (string)row["entity_type"], (int)row["tile_id"]);
+                    entity_list.Add(newEntity);
+                }
+                else if ((string)row["entity_type"] == "chest")
+                {
+                    Entity newEntity = new Chest((int)row["entity_id"], (string)row["entity_type"], (int)row["tile_id"]);
+                    entity_list.Add(newEntity);
+                }
+
+            }
+            foreach (var entity in entity_list)
+            {
+                Console.WriteLine(entity.ToString());
+            }
+            return entity_list;
+        }
+
+        public Player LoadPlayer(string username_param)
+        {
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter username = new("@username", MySqlDbType.VarChar, 50)
+            {
+                Value = username_param
+            };
+            procedure_params.Add(username);
+
+
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetPlayerByAccUsername(@username)", procedure_params.ToArray());
+            Player newEntity;
+
+            DataRow row = query_result.Tables[0].Rows[0];
+            newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
+
+            return newEntity;
+        }
+
+        public void MovePlayer(int target_tile, int entity_id)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter _target_tile = new("@target_tile", MySqlDbType.Int32)
+            {
+                Value = target_tile
+            };
+            MySqlParameter _player_id = new("@player_id", MySqlDbType.Int32)
+            {
+                Value = entity_id
+            };
+            procedure_params.Add(_target_tile);
+            procedure_params.Add(_player_id);
+
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call MovePlayer(@target_tile, @player_id)", procedure_params.ToArray());
+
         }
     }
 }

@@ -125,9 +125,9 @@
             // 
             // board_panel
             // 
-            board_panel.Location = new Point(203, 28);
+            board_panel.Location = new Point(223, 41);
             board_panel.Name = "board_panel";
-            board_panel.Size = new Size(250, 250);
+            board_panel.Size = new Size(500, 500);
             board_panel.TabIndex = 8;
             // 
             // Game
