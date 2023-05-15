@@ -24,24 +24,23 @@ namespace Battlespire
         private static List<Entity> entitiy_list;
         private static List<Tile> tile_list;
         private static Player current_player;
+        private static Board board;
 
         public static List<Entity> Entitiy_list { get => entitiy_list; set => entitiy_list = value; }
         public static List<Tile> Tile_list { get => tile_list; set => tile_list = value; }
         public static Player Current_player { get => current_player; set => current_player = value; }
         public string Username { get => _username; set => _username = value; }
+        public static Board Board { get => board; set => board = value; }
 
         public Game(Login login, String username)
         {
+            InitializeComponent();
             _login_form = login;
             Username = username;
 
-            InitializeComponent();
-            GameDAO db_connection = new();
-            Current_player = db_connection.LoadPlayer(Username);
-            Entitiy_list = db_connection.LoadEntities();
-            Tile_list = db_connection.GetTilesByPlayer(Current_player.Entity_id);
-            GenerateBoard(Tile_list);
-            UpdateBoard();
+            Board = new Board(this);
+
+            Board.GenerateBoard(this);
         }
 
         private void update_chat_button_Click(object sender, EventArgs e)
@@ -83,55 +82,5 @@ namespace Battlespire
                 user.Show();
             }
         }
-
-        private void GenerateBoard(List<Tile> viewport_tiles)
-        {
-            //for (int row = 10; row < 10; row++)
-            //{
-            //    for (int col = 10; col < 10; col++)
-            //    {
-            //        PictureBox pictureBox = new PictureBox();
-            //        pictureBox.BackColor = Color.Gray;
-            //        pictureBox.Width = 50;
-            //        pictureBox.Height = 50;
-
-            //        pictureBox.Location = new Point(100 + (row * pictureBox.Height + 1), 100 + (col * pictureBox.Width + 1));
-            //    }
-            //}
-            var tiles_accross = 11;
-            var tile_border = 1 * tiles_accross;
-            var board_width = this.board_panel.Width - tile_border;
-            var board_height = this.board_panel.Height - tile_border;
-            var tile_width = board_width / tiles_accross;
-            var tile_height = board_height / tiles_accross;
-
-            viewport_tiles.ForEach(tile =>
-            {
-                Console.WriteLine(tile.ToString());
-                PictureBox pictureBox = new PictureBox();
-                pictureBox.Name = tile.Id.ToString();
-                pictureBox.BackColor = Color.Gray;
-                pictureBox.Width = tile_width;
-                pictureBox.Height = tile_height;
-                pictureBox.Location = new Point(board_width / 2 + tile.X * (pictureBox.Height + 1), board_height / 2 + tile.Y * (pictureBox.Width + 1));
-                pictureBox.Click += new EventHandler(tile.tile_Click);
-
-                board_panel.Controls.Add(pictureBox);
-            });
-
-        }
-
-
-        public static void UpdateBoard() {
-            Game game = 
-            var query = from entity in Entitiy_list
-                        join tile in Tile_list on entity.Tile_id equals tile.Id
-                        select new { entity.Entity_id, entity.Tile_id };
-            foreach (var entity in query)
-            {
-                board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Blue;
-            }
-        }
-
     }
 }

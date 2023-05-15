@@ -161,6 +161,6 @@
         private Button update_chat_button;
         private Button update_leaderboard_button;
         private Button settings_button;
-        private Panel board_panel;
+        public Panel board_panel;
     }
 }

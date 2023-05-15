@@ -62,7 +62,7 @@ namespace Battlespire
             else return false;
         }
 
-        public List<Tile> GetTilesByPlayer(int player_id)
+        public List<Tile> GetTilesByPlayer(Board board, int player_id)
         {
 
             List<MySqlParameter> procedure_params = new List<MySqlParameter>();
@@ -87,7 +87,8 @@ namespace Battlespire
             var tile_list = new List<Tile>();
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
-                var newTile = new Tile((int)row[0], (int)row[1], (int)row[2], (string)row[3]);
+                
+                var newTile = new Tile((int)row[0], (int)row[1], (int)row[2], (string)row[3], board);
                 tile_list.Add(newTile);
             }
 
@@ -117,10 +118,6 @@ namespace Battlespire
                     entity_list.Add(newEntity);
                 }
 
-            }
-            foreach (var entity in entity_list)
-            {
-                Console.WriteLine(entity.ToString());
             }
             return entity_list;
         }
