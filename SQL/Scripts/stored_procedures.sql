@@ -1,5 +1,11 @@
-use battlespire;
-        
+use `battlespire`;
+
+
+--    ___              _           _                      _   
+--   / __|_ _ ___ __ _| |_ ___    /_\  __ __ ___ _  _ _ _| |_ 
+--  | (__| '_/ -_) _` |  _/ -_)  / _ \/ _/ _/ _ \ || | ' \  _|
+--   \___|_| \___\__,_|\__\___| /_/ \_\__\__\___/\_,_|_||_\__|
+--                                                            
 drop procedure if exists CreateAccount;
 delimiter //
 create procedure CreateAccount(in _username varchar(50), in _email varchar(100), in _password varchar(50))
@@ -25,7 +31,15 @@ end //
 delimiter ;     
 
 
-       
+
+
+
+--   _              _          _                      _   
+--  | |   ___  __ _(_)_ _     /_\  __ __ ___ _  _ _ _| |_ 
+--  | |__/ _ \/ _` | | ' \   / _ \/ _/ _/ _ \ || | ' \  _|
+--  |____\___/\__, |_|_||_| /_/ \_\__\__\___/\_,_|_||_\__|
+--            |___/                                       
+-- 
 drop procedure if exists LoginAccount;
 delimiter //
 create procedure LoginAccount(in _username varchar(50), in _password varchar(50))
@@ -56,7 +70,14 @@ end //
 delimiter ;  
 
 
-        
+    
+
+--    ___                       _         __  __           
+--   / __|___ _ _  ___ _ _ __ _| |_ ___  |  \/  |__ _ _ __ 
+--  | (_ / -_) ' \/ -_) '_/ _` |  _/ -_) | |\/| / _` | '_ \
+--   \___\___|_||_\___|_| \__,_|\__\___| |_|  |_\__,_| .__/
+--                                                   |_|   
+-- 
 drop procedure if exists GenerateMap;
 delimiter //
 create procedure GenerateMap( in _width int, in _height int)
@@ -80,6 +101,13 @@ delimiter ;
 
 
 
+
+--    ___                       _         ___                 _                
+--   / __|___ _ _  ___ _ _ __ _| |_ ___  |_ _|_ ___ _____ _ _| |_ ___ _ _ _  _ 
+--  | (_ / -_) ' \/ -_) '_/ _` |  _/ -_)  | || ' \ V / -_) ' \  _/ _ \ '_| || |
+--   \___\___|_||_\___|_| \__,_|\__\___| |___|_||_\_/\___|_||_\__\___/_|  \_, |
+--                                                                        |__/ 
+-- 
 drop procedure if exists GenerateInventory;
 delimiter //
 create procedure GenerateInventory(in _entity_id int, in _width int, in _height int)
@@ -101,78 +129,17 @@ end //
 delimiter ;
 
 
-drop function if exists GetPlayerID;
-delimiter //
-create function GetPlayerID(_account_id int)
-returns int deterministic
-begin
-	declare _player_id int;
-	
-	select e.entity_id
-	into _player_id
-	from entity e
-	where e.entity_type = "player"
-	and e.account_id = _account_id;
-
-	return _player_id;
-end //
-delimiter ;
-
-
-drop function if exists GetEntityIDFromInventoryTile;
-delimiter //
-create function GetEntityIDFromInventoryTile(_tile_id int)
-returns int deterministic
-begin
-	declare _entity_id int;
-	
-	select owner_id
-	into _entity_id
-	from entity
-	where tile_id = _tile_id;
-
-	return _entity_id;
-end //
-delimiter ;
 
 
 
-drop function if exists GetChestIDFromTile;
-delimiter //
-create function GetChestIDFromTile(_tile_id int)
-returns int deterministic
-begin
-	declare _chest_id int;
-	
-	select entity_id
-	into _chest_id
-	from entity
-	where entity_type = "chest"
-	and tile_id = _tile_id;
-
-	return _chest_id;
-end //
-delimiter ;
 
 
-drop function if exists GetChestIDFromItem;
-delimiter //
-create function GetChestIDFromItem(_item_id int)
-returns int deterministic
-begin
-	declare _chest_id int;
-	
-	select e.owner_id
-	into _chest_id
-	from entity e
-	where e.entity_type = "item"
-	and e.entity_id = _item_id;
-
-	return _chest_id;
-end //
-delimiter ;
-
-
+--    ___              _         ___ _                   
+--   / __|_ _ ___ __ _| |_ ___  | _ \ |__ _ _  _ ___ _ _ 
+--  | (__| '_/ -_) _` |  _/ -_) |  _/ / _` | || / -_) '_|
+--   \___|_| \___\__,_|\__\___| |_| |_\__,_|\_, \___|_|  
+--                                          |__/         
+-- 
 drop procedure if exists CreatePlayer;
 delimiter //
 create procedure CreatePlayer(in _account_id int)
@@ -212,12 +179,12 @@ begin
 			0
 		);
 
-	select entity_id
-	into _player_id
-	from entity
-	where account_id = _account_id;
-
-	call GenerateInventory(_player_id, 8, 4);
+		select entity_id
+		into _player_id
+		from entity
+		where account_id = _account_id;
+	
+		call GenerateInventory(_player_id, 8, 4);
 
 	commit;
 end //
@@ -225,6 +192,15 @@ delimiter ;
 
 
 
+
+
+
+--   __  __               ___                 _                  ___ _             
+--  |  \/  |_____ _____  |_ _|_ ___ _____ _ _| |_ ___ _ _ _  _  |_ _| |_ ___ _ __  
+--  | |\/| / _ \ V / -_)  | || ' \ V / -_) ' \  _/ _ \ '_| || |  | ||  _/ -_) '  \ 
+--  |_|  |_\___/\_/\___| |___|_||_\_/\___|_||_\__\___/_|  \_, | |___|\__\___|_|_|_|
+--                                                        |__/                     
+-- 
 -- procedure should take an account_id and an item_id, it should change the owner_id,
 -- then update the inventory_used of the player and the chest the item came from.
 -- should allow players to equip item from chest directly.
@@ -258,6 +234,14 @@ delimiter ;
 
 
 
+
+
+--   _   _          _      _         ___     _   _ _          ___                 _                
+--  | | | |_ __  __| |__ _| |_ ___  | __|_ _| |_(_) |_ _  _  |_ _|_ ___ _____ _ _| |_ ___ _ _ _  _ 
+--  | |_| | '_ \/ _` / _` |  _/ -_) | _|| ' \  _| |  _| || |  | || ' \ V / -_) ' \  _/ _ \ '_| || |
+--   \___/| .__/\__,_\__,_|\__\___| |___|_||_\__|_|\__|\_, | |___|_||_\_/\___|_||_\__\___/_|  \_, |
+--        |_|                                          |__/                                   |__/ 
+-- 
 drop procedure if exists UpdateEntityInventory;
 delimiter //
 create procedure UpdateEntityInventory(in _entity_id int)
@@ -287,45 +271,14 @@ delimiter ;
 
 
 
-drop function if exists CalculateTier;
-delimiter //
-create function CalculateTier(_distance int)
-returns varchar(10) deterministic
-begin
-	declare _tier varchar(10);
-	
-	if pow(_distance, 1.25) >= 488.28125 then
-		set _tier = "II";
-	end if;
-	if pow(_distance, 1.25) >= 976.5625 then
-		set _tier = "III";
-	end if;
-	if pow(_distance, 1.25) >= 1953.125 then
-		set _tier = "IV";
-	end if;
-	if pow(_distance, 1.25) >= 3906.25 then
-		set _tier = "V";
-	end if;
-	if pow(_distance, 1.25) >= 7812.5 then
-		set _tier = "VI";
-	end if;
-	if pow(_distance, 1.25) >= 15625 then
-		set _tier = "VII";
-	end if;
-	if pow(_distance, 1.25) >= 31250 then
-		set _tier = "VIII";
-	end if;
-	if pow(_distance, 1.25) >= 62500 then
-		set _tier = "IX";
-	end if;
-	if pow(_distance, 1.25) >= 125000 then
-		set _tier = "X";
-	end if;
 
-	return _tier;
-end //
-delimiter ;
 
+
+--    ___              _         ___ _             
+--   / __|_ _ ___ __ _| |_ ___  |_ _| |_ ___ _ __  
+--  | (__| '_/ -_) _` |  _/ -_)  | ||  _/ -_) '  \ 
+--   \___|_| \___\__,_|\__\___| |___|\__\___|_|_|_|
+--                               
 drop procedure if exists CreateItem;
 delimiter //
 create procedure CreateItem(in _chest_id int)
@@ -410,6 +363,13 @@ delimiter ;
 
 
 
+
+--   ___                           ___ _           _   
+--  / __|_ __  __ ___ __ ___ _    / __| |_  ___ __| |_ 
+--  \__ \ '_ \/ _` \ V  V / ' \  | (__| ' \/ -_|_-<  _|
+--  |___/ .__/\__,_|\_/\_/|_||_|  \___|_||_\___/__/\__|
+--      |_|                                            
+-- 
 drop procedure if exists SpawnChest;
 delimiter //
 create procedure SpawnChest(in _tile_id int)
@@ -441,6 +401,13 @@ end //
 delimiter ;
 
 
+
+--   ___                          __  __             _              ___ _           _   
+--  / __|_ __  __ ___ __ ___ _   |  \/  |___ _ _  __| |_ ___ _ _   / __| |_  ___ __| |_ 
+--  \__ \ '_ \/ _` \ V  V / ' \  | |\/| / _ \ ' \(_-<  _/ -_) '_| | (__| ' \/ -_|_-<  _|
+--  |___/ .__/\__,_|\_/\_/|_||_| |_|  |_\___/_||_/__/\__\___|_|    \___|_||_\___/__/\__|
+--      |_|                                                                             
+-- 
 drop procedure if exists SpawnMonsterChest;
 delimiter //
 create procedure SpawnMonsterChest(in _tile_id int)
@@ -460,6 +427,13 @@ delimiter ;
 
 
 
+
+--   ___                          __  __             _           
+--  / __|_ __  __ ___ __ ___ _   |  \/  |___ _ _  __| |_ ___ _ _ 
+--  \__ \ '_ \/ _` \ V  V / ' \  | |\/| / _ \ ' \(_-<  _/ -_) '_|
+--  |___/ .__/\__,_|\_/\_/|_||_| |_|  |_\___/_||_/__/\__\___|_|  
+--      |_|                                                      
+-- 
 drop procedure if exists SpawnMonster;
 delimiter //
 create procedure SpawnMonster(in _tile_id int)
@@ -472,7 +446,7 @@ begin
 	declare _current_health int;
 	
 	declare _type_mod int ;
-	declare _monster_type varchar(50) default "Goblin";
+	declare _monster_type varchar(50) default "Goblin ";
 	declare _tier varchar(10) default "I";
 	
 	-- find the distance of the chest from the center
@@ -527,6 +501,12 @@ end //
 delimiter ;
 
 
+
+--   ___        _      _       _          _                      _   
+--  |_ _|___   /_\  __| |_ __ (_)_ _     /_\  __ __ ___ _  _ _ _| |_ 
+--   | |(_-<  / _ \/ _` | '  \| | ' \   / _ \/ _/ _/ _ \ || | ' \  _|
+--  |___/__/ /_/ \_\__,_|_|_|_|_|_||_| /_/ \_\__\__\___/\_,_|_||_\__|
+--                                                                   
 drop procedure if exists IsAdminAccount;
 delimiter //
 create procedure IsAdminAccount(in _username varchar(50))
@@ -540,6 +520,13 @@ end //
 delimiter ;
 
 
+
+--    ___     _       _   _ _   ___ _                      
+--   / __|___| |_    /_\ | | | | _ \ |__ _ _  _ ___ _ _ ___
+--  | (_ / -_)  _|  / _ \| | | |  _/ / _` | || / -_) '_(_-<
+--   \___\___|\__| /_/ \_\_|_| |_| |_\__,_|\_, \___|_| /__/
+--                                         |__/            
+-- 
 drop procedure if exists GetAllPlayers;
 delimiter //
 create procedure GetAllPlayers()
@@ -553,6 +540,12 @@ delimiter ;
 
 
 
+
+--    ___     _     _                _         _                      _ 
+--   / __|___| |_  | |   ___ __ _ __| |___ _ _| |__  ___  __ _ _ _ __| |
+--  | (_ / -_)  _| | |__/ -_) _` / _` / -_) '_| '_ \/ _ \/ _` | '_/ _` |
+--   \___\___|\__| |____\___\__,_\__,_\___|_| |_.__/\___/\__,_|_| \__,_|
+--                                                                      
 drop procedure if exists GetLeaderboard;
 delimiter //
 create procedure GetLeaderboard()
@@ -565,6 +558,13 @@ end //
 delimiter ;
 
 
+
+--    ___     _      ___ _         _     _  _ _    _                
+--   / __|___| |_   / __| |_  __ _| |_  | || (_)__| |_ ___ _ _ _  _ 
+--  | (_ / -_)  _| | (__| ' \/ _` |  _| | __ | (_-<  _/ _ \ '_| || |
+--   \___\___|\__|  \___|_||_\__,_|\__| |_||_|_/__/\__\___/_|  \_, |
+--                                                             |__/ 
+-- 
 drop procedure if exists GetChatHistory;
 delimiter //
 create procedure GetChatHistory()
@@ -579,6 +579,12 @@ end //
 delimiter ;
 
 
+--   ___              _   __  __                          
+--  / __| ___ _ _  __| | |  \/  |___ ______ __ _ __ _ ___ 
+--  \__ \/ -_) ' \/ _` | | |\/| / -_|_-<_-</ _` / _` / -_)
+--  |___/\___|_||_\__,_| |_|  |_\___/__/__/\__,_\__, \___|
+--                                              |___/     
+-- 
 drop procedure if exists SendMessage;
 delimiter //
 create procedure SendMessage(in _account_id int, in _message varchar(500))
@@ -591,3 +597,94 @@ end //
 delimiter ;
 
 
+
+--    ___     _     _____ _ _          ___        ___ _                   
+--   / __|___| |_  |_   _(_) |___ ___ | _ )_  _  | _ \ |__ _ _  _ ___ _ _ 
+--  | (_ / -_)  _|   | | | | / -_|_-< | _ \ || | |  _/ / _` | || / -_) '_|
+--   \___\___|\__|   |_| |_|_\___/__/ |___/\_, | |_| |_\__,_|\_, \___|_|  
+--                                         |__/              |__/         
+-- 
+drop procedure if exists GetTilesByPlayer;
+delimiter //
+create procedure GetTilesByPlayer(in _player_id int, in _viewport_width int, in _viewport_height int)
+begin
+	
+	declare _x int;
+	declare _y int;
+	declare _width int;
+	declare _height int;
+
+	set _width = _viewport_width /2;
+	set _height = _viewport_height /2;
+	
+	select x,y
+	into _x,_y	
+	from tile t 
+	join entity e on e.tile_id = t.tile_id 
+	where entity_id = _player_id;
+
+	select tile_id, x, y, tile_type
+	from tile
+	where 
+		tile_type = 'ground'  &&
+		x >= _x - _width &&
+		x <= _x + _width &&
+		y >= _y - _height &&
+		y <= _y + _height ||
+		tile_type = 'wall' &&
+		x >= _x - _width &&
+		x <= _x + _width &&
+		y >= _y - _height &&
+		y <= _y + _height 
+	order by x desc, y asc;
+
+end //
+delimiter ;
+
+
+
+   
+drop procedure if exists GetAllEntities; -- excluding items
+delimiter //
+create procedure GetAllEntities()
+begin
+	
+	select *
+	from entity e 
+	where e.entity_type != "item";
+
+	
+end //
+delimiter ;  
+
+drop procedure if exists GetPlayerByAccUsername; -- excluding items
+delimiter //
+create procedure GetPlayerByAccUsername(in _username varchar(50))
+begin
+	
+	select *
+	from entity e 
+	join account a on a.account_id = e.account_id 
+	where a.username = _username;
+
+	
+end //
+delimiter ;  
+
+drop procedure if exists MovePlayer; -- excluding items
+delimiter //
+create procedure MovePlayer(in _target_tile int, in _player_id int)
+begin
+	
+		update entity 
+		set tile_id = _target_tile
+		where entity_id = _player_id;
+
+	
+end //
+delimiter ; 
+
+-- Below is used for the Create Database Task
+
+call CreateDatabase();
+call InsertData();

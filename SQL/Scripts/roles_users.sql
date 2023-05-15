@@ -1,4 +1,4 @@
-use battlespire;
+use `battlespire`;
 
 drop role if exists administrator;
 create role administrator;

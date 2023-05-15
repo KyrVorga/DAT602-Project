@@ -1,7 +1,7 @@
 {
 	"folders": {},
 	"connections": {
-		"mysql8-187f9bfab94-15505cd48c52e2fa": {
+		"mysql8-18711335edc-4e1deba8b78848e5": {
 			"provider": "mysql",
 			"driver": "mysql8",
 			"name": "localhost",
@@ -14,6 +14,10 @@
 				"home": "C:\\Program Files\\MySQL\\MySQL Server 8.0",
 				"type": "dev",
 				"auth-model": "native"
+			},
+			"custom-properties": {
+				"SQLEditor.outputPanel.autoShow": "false",
+				"sql.format.keywordCase": "LOWER"
 			}
 		}
 	},

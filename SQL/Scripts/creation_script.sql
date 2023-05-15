@@ -2,6 +2,12 @@ drop database if exists `battlespire`;
 create database if not exists `battlespire`;
 use `battlespire`;
 
+
+--    ___              _         ___       _        _                  
+--   / __|_ _ ___ __ _| |_ ___  |   \ __ _| |_ __ _| |__  __ _ ___ ___ 
+--  | (__| '_/ -_) _` |  _/ -_) | |) / _` |  _/ _` | '_ \/ _` (_-</ -_)
+--   \___|_| \___\__,_|\__\___| |___/\__,_|\__\__,_|_.__/\__,_/__/\___|
+--                                                                     
 drop procedure if exists CreateDatabase;
 delimiter //
 create procedure CreateDatabase()
@@ -91,6 +97,12 @@ delimiter ;
 
 
 
+
+--   ___                  _     ___       _        
+--  |_ _|_ _  ___ ___ _ _| |_  |   \ __ _| |_ __ _ 
+--   | || ' \(_-</ -_) '_|  _| | |) / _` |  _/ _` |
+--  |___|_||_/__/\___|_|  \__| |___/\__,_|\__\__,_|
+--                                                 
 drop procedure if exists InsertData;
 delimiter //
 create procedure InsertData()
@@ -148,7 +160,7 @@ begin
 	insert into account (username, email, password, is_administrator)
     values 
 		('KyrVorga', 'kyrvorga@mail.com', 'omnis-vir-lupus', true),
-		('Todd', 'todd@nmit.ac.nz', '1234', true);
+		('asdf', 'asdf@asdf.com', 'asdf', true);
     
 
 	-- these 4 use the id's that are manually added to provied some higher tier items.
@@ -177,6 +189,7 @@ begin
 	call SpawnChest(1332);
 	call SpawnChest(1334);
     
+	call SpawnChest(3360);
 	
 	call SpawnMonster(6500); 
 	call SpawnMonster(6500); 
@@ -203,6 +216,7 @@ begin
 	call SpawnMonster(6565); 
 	call SpawnMonster(6565); 
 
+	call SpawnMonster(3041); 
 
 
 	call CreatePlayer(1);
@@ -214,6 +228,7 @@ begin
 	call CreatePlayer(7);
 	call CreatePlayer(8);
 	call CreatePlayer(9);
+	call CreatePlayer(11);
 	
   
 	call SendMessage(1, "Hello ****heads!");

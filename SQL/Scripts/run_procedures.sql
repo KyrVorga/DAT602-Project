@@ -1,4 +1,0 @@
-
-
-call CreateDatabase();
-call InsertData();

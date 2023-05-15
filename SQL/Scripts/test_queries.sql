@@ -1,12 +1,18 @@
+use `battlespire`;
+
 select * from account;
 select * from entity;
-select * from entity where entity_type = "player" and account_id = 4;
+select * from entity where entity_type = "player" and account_id = 11;
 
 
 select * from entity where entity_type = "player";
 select * from entity where entity_type = "monster";
 select * from entity where entity_type = "item";
 select * from entity where entity_type = "chest";
+
+call GetTilesByPlayer(82, 10, 10);
+
+
 
 select * from tile where x >= 100;
 
@@ -28,6 +34,17 @@ show procedure status;
 call CreatePlayer(1) 
 
 
+
+
+call GetPlayerByAccUsername("asdf");
+
+	
+-- call GetAllEntities()
+	
+call moveplayer(3607, :_player_id) 
+	
+	
+	
 select pow(sqrt(pow(abs(t.x), 2) + pow(abs(t.x), 2)), 1.25)
 from entity e 
 join tile t on t.tile_id = e.tile_id
