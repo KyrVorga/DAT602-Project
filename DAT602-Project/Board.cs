@@ -56,7 +56,9 @@ namespace DAT602_Project
             GameDAO db_connection = new();
             return db_connection.GetTilesByPlayer(this, Current_player.Entity_id);
         }
-
+        /* TODO: Pictureboxes should not associate with a tile by name
+         * UpdateBoard should look through the exisitng tile list and query for any missing tiles.
+         */
         public static void GenerateBoard(Game game)
         {
             Console.WriteLine("Generate board");
