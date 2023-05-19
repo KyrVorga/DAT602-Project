@@ -40,7 +40,7 @@ namespace Battlespire
 
             Board = new Board(this);
 
-            Board.GenerateBoard(this);
+            Board.GenerateBoard();
         }
 
         private void update_chat_button_Click(object sender, EventArgs e)

@@ -88,7 +88,7 @@ namespace Battlespire
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
                 
-                var newTile = new Tile((int)row[0], (int)row[1], (int)row[2], (string)row[3], board);
+                var newTile = new BoardTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], board);
                 tile_list.Add(newTile);
             }
 
@@ -104,16 +104,19 @@ namespace Battlespire
             {
                 if ((string)row["entity_type"] == "player")
                 {
+                    //convert to named arguments 
                     Entity newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
                     entity_list.Add(newEntity);
                 }
                 else if ((string)row["entity_type"] == "monster")
                 {
+                    //convert to named arguments 
                     Entity newEntity = new Monster((int)row["entity_id"], (string)row["name"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (string)row["entity_type"], (int)row["tile_id"]);
                     entity_list.Add(newEntity);
                 }
                 else if ((string)row["entity_type"] == "chest")
                 {
+                    //convert to named arguments 
                     Entity newEntity = new Chest((int)row["entity_id"], (string)row["entity_type"], (int)row["tile_id"]);
                     entity_list.Add(newEntity);
                 }
@@ -136,6 +139,7 @@ namespace Battlespire
             Player newEntity;
 
             DataRow row = query_result.Tables[0].Rows[0];
+            //convert to named arguments 
             newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
 
             return newEntity;
@@ -156,8 +160,53 @@ namespace Battlespire
             procedure_params.Add(_target_tile);
             procedure_params.Add(_player_id);
 
-            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call MovePlayer(@target_tile, @player_id)", procedure_params.ToArray());
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call MovePlayer(@target_tile, @player_id)", procedure_params.ToArray());
 
+        }
+
+
+        public List<Item> GetEntityInventory(int entity_id)
+        {
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
+            {
+                Value = entity_id
+            };
+            procedure_params.Add(_entity_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetEntityInventory(@entity_id)", procedure_params.ToArray());
+
+            var item_list = new List<Item>();
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+                //convert to named arguments 
+                Item newEntity = new Item((int)row["entity_id"], (string)row["name"], (string)row["entity_type"], (int)row["tile_id"], (int)row["owner_id"], (int)row["health"], (int)row["attack"], (int)row["defense"], (int)row["healing"]);
+                item_list.Add(newEntity);
+              
+
+            }
+            return item_list;
+        }
+
+        public List<Tile> GetEntityInventoryTiles(int entity_id, Inventory inventory)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
+            {
+                Value = entity_id
+            };
+            procedure_params.Add(_entity_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetEntityInventoryTiles(@entity_id)", procedure_params.ToArray());
+
+            var tile_list = new List<Tile>();
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+
+                var newTile = new InventoryTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], );
+                tile_list.Add(newTile);
+            }
+
+            return tile_list;
         }
     }
 }

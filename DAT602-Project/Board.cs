@@ -1,4 +1,5 @@
 ﻿using Battlespire;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,11 +43,12 @@ namespace DAT602_Project
             {
                 if (current_tile.X <= target_tile.X + 1 && current_tile.X >= target_tile.X - 1 && current_tile.Y <= target_tile.Y + 1 && current_tile.Y >= target_tile.Y - 1)
                 {
-                    Current_player.Tile_id = current_tile.Id;
+                    Current_player.Tile_id = target_tile.Id;
 
                     GameDAO db_connection = new();
                     db_connection.MovePlayer(target_tile.Id, Current_player.Entity_id);
-                    GenerateBoard(Game);
+                    Tile_list = GetTiles();
+                    GenerateBoard();
                 }
             }
         }
@@ -56,46 +58,76 @@ namespace DAT602_Project
             GameDAO db_connection = new();
             return db_connection.GetTilesByPlayer(this, Current_player.Entity_id);
         }
-        /* TODO: Pictureboxes should not associate with a tile by name
-         * UpdateBoard should look through the exisitng tile list and query for any missing tiles.
-         */
-        public static void GenerateBoard(Game game)
+
+        public static void GenerateBoard()
         {
-            Console.WriteLine("Generate board");
             int tiles_accross = 11;
             int tile_border = 1 * tiles_accross;
-            int board_width = game.board_panel.Width - tile_border;
-            int board_height = game.board_panel.Height - tile_border;
-            int tile_width = 30;// board_width / tiles_accross;
-            int tile_height = 30; // board_height / tiles_accross;
-            game.board_panel.Controls.Clear();
-            Tile_list.ForEach(tile =>
+            int board_width = Game.board_panel.Width - tile_border;
+            int board_height = Game.board_panel.Height - tile_border;
+            int tile_width = board_width / tiles_accross;
+            int tile_height = board_height / tiles_accross;
+            int ending_position = ((tiles_accross - 1) / 2);
+            int starting_position = ((tiles_accross - 1) / 2) * -1;
+
+            Game.board_panel.Controls.Clear();
+
+            for (int i = starting_position;  i <= ending_position; i++)
             {
-                PictureBox pictureBox = new PictureBox();
-                pictureBox.Name = tile.Id.ToString();
-                pictureBox.BackColor = Color.Gray;
-                pictureBox.Width = tile_width;
-                pictureBox.Height = tile_height;
-                //pictureBox.Location = new Point(board_width / 2 + tile.X * (pictureBox.Height + 1), board_height / 2 + tile.Y * (pictureBox.Width + 1));
-                pictureBox.Location = new Point(250 + (tile.X * (pictureBox.Height + 1)), 250 + (tile.Y * (pictureBox.Width + 1)));
-                pictureBox.Click += new EventHandler(tile.tile_Click);
+                for (int j = starting_position; j <= ending_position; j++)
+                {
+                    PictureBox pictureBox = new();
+                    pictureBox.BackColor = Color.Gray;
+                    pictureBox.Width = tile_width;
+                    pictureBox.Height = tile_height;
+                    pictureBox.Location = new Point(board_width / 2 + i * (pictureBox.Height + 1), board_height / 2 + j * (pictureBox.Width + 1));
+                    Game.board_panel.Controls.Add(pictureBox);
+                }
+            }
 
-                game.board_panel.Controls.Add(pictureBox);
-            });
 
-            UpdateBoard(Game);
+            UpdateBoard();
         }
 
 
-        public static void UpdateBoard(Game game)
+        public static void UpdateBoard()
         {
-            var query = from entity in Entitiy_list
-                        join tile in Tile_list on entity.Tile_id equals tile.Id
-                        select new { entity.Entity_id, entity.Tile_id };
+
+            Console.Write( Tile_list.Count);
+            for (int i = 0; i < Game.board_panel.Controls.Count; i++)
+            {
+                Tile tile = Tile_list[i];
+                Control box = Game.board_panel.Controls[i];
+
+                box.Name = tile.Id.ToString();
+                box.Click += new EventHandler(tile.Tile_Click);
+            }
+
+
+
+
+            var query = from entity in entitiy_list
+                        join tile in tile_list on entity.Tile_id equals tile.Id
+                        select new { entity.Entity_id, entity.Tile_id, entity.Entity_type };
             foreach (var entity in query)
             {
-                game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Blue;
+                if (entity.Entity_id == current_player.Entity_id)
+                {
+                    Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Purple;
+                } else if (entity.Entity_type == "player")
+                {
+                    Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Green;
+                } else if (entity.Entity_type == "monster")
+                {
+                    Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Red;
+                } else if (entity.Entity_type == "chest")
+                {
+                    Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Yellow;
+                }
             }
+
+            Game.board_panel.Controls[current_player.Tile_id.ToString()].BackColor = Color.BlueViolet;
+
         }
     }
 }

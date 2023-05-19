@@ -16,6 +16,7 @@ namespace DAT602_Project
         private int _healing;
         private int _account_id;
         private int _killscore;
+        private Inventory _inventory = new Inventory();
 
         public Player (int entity_id, int health, int current_health, int attack, int defense, int healing, int account_id, string entity_type, int tile_id, int killscore) : base(entity_id, entity_type, tile_id) {
             Health = health;
