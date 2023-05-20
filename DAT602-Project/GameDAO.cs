@@ -201,9 +201,11 @@ namespace Battlespire
             var tile_list = new List<Tile>();
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
-
-                var newTile = new InventoryTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], );
-                tile_list.Add(newTile);
+                if (row != null)
+                {
+                    var newTile = new InventoryTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], inventory);
+                    tile_list.Add(newTile);
+                }
             }
 
             return tile_list;

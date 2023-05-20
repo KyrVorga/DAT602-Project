@@ -20,16 +20,14 @@ namespace Battlespire
         private Login _login_form;
         private SettingsAdmin _settings_admin;
         private SettingsUser _settings_user;
-        private String _username;
+        private static String _username;
         private static List<Entity> entitiy_list;
         private static List<Tile> tile_list;
-        private static Player current_player;
         private static Board board;
 
         public static List<Entity> Entitiy_list { get => entitiy_list; set => entitiy_list = value; }
         public static List<Tile> Tile_list { get => tile_list; set => tile_list = value; }
-        public static Player Current_player { get => current_player; set => current_player = value; }
-        public string Username { get => _username; set => _username = value; }
+        public static string Username { get => _username; set => _username = value; }
         public static Board Board { get => board; set => board = value; }
 
         public Game(Login login, String username)
@@ -81,6 +79,13 @@ namespace Battlespire
                 SettingsUser user = new SettingsUser(this);
                 user.Show();
             }
+        }
+
+        private void inventory_icon_Click(object sender, EventArgs e)
+        {
+            Inventory inventory = Board.Current_player.Inventory;
+            InventoryForm inventoryForm = inventory.InventoryForm;
+            inventoryForm.Show();
         }
     }
 }

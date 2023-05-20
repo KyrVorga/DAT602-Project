@@ -1,6 +1,6 @@
 ﻿namespace DAT602_Project
 {
-    partial class InventoryWindow
+    partial class InventoryForm
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            panel1 = new Panel();
+            inventory_board = new Panel();
             drop_item_button = new Button();
             player_health_label = new Label();
             player_attack_label = new Label();
@@ -39,16 +39,16 @@
             player_name_label = new Label();
             SuspendLayout();
             // 
-            // panel1
+            // inventory_board
             // 
-            panel1.Location = new Point(12, 224);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(257, 107);
-            panel1.TabIndex = 0;
+            inventory_board.Location = new Point(12, 193);
+            inventory_board.Name = "inventory_board";
+            inventory_board.Size = new Size(257, 138);
+            inventory_board.TabIndex = 0;
             // 
             // drop_item_button
             // 
-            drop_item_button.Location = new Point(196, 195);
+            drop_item_button.Location = new Point(193, 167);
             drop_item_button.Name = "drop_item_button";
             drop_item_button.Size = new Size(75, 23);
             drop_item_button.TabIndex = 1;
@@ -94,7 +94,7 @@
             // inventory_label
             // 
             inventory_label.AutoSize = true;
-            inventory_label.Location = new Point(12, 194);
+            inventory_label.Location = new Point(12, 175);
             inventory_label.Name = "inventory_label";
             inventory_label.Size = new Size(57, 15);
             inventory_label.TabIndex = 6;
@@ -112,13 +112,13 @@
             // player_name_label
             // 
             player_name_label.AutoSize = true;
-            player_name_label.Location = new Point(71, 164);
+            player_name_label.Location = new Point(90, 128);
             player_name_label.Name = "player_name_label";
             player_name_label.Size = new Size(37, 15);
             player_name_label.TabIndex = 8;
             player_name_label.Text = "name";
             // 
-            // InventoryWindow
+            // InventoryForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -131,8 +131,8 @@
             Controls.Add(player_attack_label);
             Controls.Add(player_health_label);
             Controls.Add(drop_item_button);
-            Controls.Add(panel1);
-            Name = "InventoryWindow";
+            Controls.Add(inventory_board);
+            Name = "InventoryForm";
             Text = "InventoryWindow";
             Load += InventoryWindow_Load;
             ResumeLayout(false);
@@ -141,7 +141,7 @@
 
         #endregion
 
-        private Panel panel1;
+        private Panel inventory_board;
         private Button drop_item_button;
         private Label player_health_label;
         private Label player_attack_label;

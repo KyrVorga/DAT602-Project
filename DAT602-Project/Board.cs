@@ -2,9 +2,12 @@
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace DAT602_Project
@@ -59,7 +62,7 @@ namespace DAT602_Project
             return db_connection.GetTilesByPlayer(this, Current_player.Entity_id);
         }
 
-        public static void GenerateBoard()
+        public void GenerateBoard()
         {
             int tiles_accross = 11;
             int tile_border = 1 * tiles_accross;
@@ -90,17 +93,21 @@ namespace DAT602_Project
         }
 
 
-        public static void UpdateBoard()
+        public void UpdateBoard()
         {
 
-            Console.Write( Tile_list.Count);
+            //Console.Write( Tile_list.Count);
             for (int i = 0; i < Game.board_panel.Controls.Count; i++)
             {
                 Tile tile = Tile_list[i];
                 Control box = Game.board_panel.Controls[i];
 
                 box.Name = tile.Id.ToString();
-                box.Click += new EventHandler(tile.Tile_Click);
+                box.BackColor = Color.Gray;
+                // remove previous Tile_click event handler
+                
+                
+                box.Click += tile.Tile_Click;
             }
 
 
@@ -114,13 +121,16 @@ namespace DAT602_Project
                 if (entity.Entity_id == current_player.Entity_id)
                 {
                     Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Purple;
-                } else if (entity.Entity_type == "player")
+                }
+                else if (entity.Entity_type == "player")
                 {
                     Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Green;
-                } else if (entity.Entity_type == "monster")
+                }
+                else if (entity.Entity_type == "monster")
                 {
                     Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Red;
-                } else if (entity.Entity_type == "chest")
+                }
+                else if (entity.Entity_type == "chest")
                 {
                     Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Yellow;
                 }

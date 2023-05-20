@@ -37,6 +37,8 @@
             update_leaderboard_button = new Button();
             settings_button = new Button();
             board_panel = new Panel();
+            inventory_icon = new PictureBox();
+            ((System.ComponentModel.ISupportInitialize)inventory_icon).BeginInit();
             SuspendLayout();
             // 
             // leaderboard_box
@@ -130,11 +132,22 @@
             board_panel.Size = new Size(500, 500);
             board_panel.TabIndex = 8;
             // 
+            // inventory_icon
+            // 
+            inventory_icon.BackColor = SystemColors.MenuHighlight;
+            inventory_icon.Location = new Point(769, 496);
+            inventory_icon.Name = "inventory_icon";
+            inventory_icon.Size = new Size(50, 45);
+            inventory_icon.TabIndex = 9;
+            inventory_icon.TabStop = false;
+            inventory_icon.Click += inventory_icon_Click;
+            // 
             // Game
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(853, 568);
+            Controls.Add(inventory_icon);
             Controls.Add(board_panel);
             Controls.Add(settings_button);
             Controls.Add(update_leaderboard_button);
@@ -147,6 +160,7 @@
             Margin = new Padding(2);
             Name = "Game";
             Text = "Game";
+            ((System.ComponentModel.ISupportInitialize)inventory_icon).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -162,5 +176,6 @@
         private Button update_leaderboard_button;
         private Button settings_button;
         public Panel board_panel;
+        private PictureBox inventory_icon;
     }
 }

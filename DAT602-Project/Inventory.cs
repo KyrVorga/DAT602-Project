@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace DAT602_Project
 {
-    internal class Inventory
+    public class Inventory
     {
 
         private List<Tile> _tile_list;
         private List<Item> _items;
-        private static InventoryWindow _inventory_window = new InventoryWindow();
+        private InventoryForm _inventory_form;
 
         public Inventory(int entity_id)
         {
@@ -20,11 +20,12 @@ namespace DAT602_Project
             GameDAO db_connection = new();
             Tile_list = db_connection.GetEntityInventoryTiles(entity_id, this);
             Items = db_connection.GetEntityInventory(entity_id);
+            _inventory_form = new InventoryForm(this);
         }
 
         public List<Tile> Tile_list { get => _tile_list; set => _tile_list = value; }
         internal List<Item> Items { get => _items; set => _items = value; }
-        public static InventoryWindow InventoryWindow { get => _inventory_window; set => _inventory_window = value; }
+        public InventoryForm InventoryForm { get => _inventory_form; set => _inventory_form = value; }
 
 
     }
