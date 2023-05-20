@@ -179,7 +179,8 @@ namespace Battlespire
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
                 //convert to named arguments 
-                Item newEntity = new Item((int)row["entity_id"], (string)row["name"], (string)row["entity_type"], (int)row["tile_id"], (int)row["owner_id"], (int)row["health"], (int)row["attack"], (int)row["defense"], (int)row["healing"]);
+                Console.WriteLine(row["is_equipped"].ToString());
+                Item newEntity = new Item((int)row["entity_id"], (string)row["name"], (string)row["entity_type"], (int)row["tile_id"], (int)row["owner_id"], (int)row["health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (bool)row["is_equipped"]);
                 item_list.Add(newEntity);
               
 
@@ -187,7 +188,7 @@ namespace Battlespire
             return item_list;
         }
 
-        public List<Tile> GetEntityInventoryTiles(int entity_id, Inventory inventory)
+        public List<InventoryTile> GetEntityInventoryTiles(int entity_id, Inventory inventory)
         {
 
             List<MySqlParameter> procedure_params = new List<MySqlParameter>();
@@ -198,7 +199,7 @@ namespace Battlespire
             procedure_params.Add(_entity_id);
             DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetEntityInventoryTiles(@entity_id)", procedure_params.ToArray());
 
-            var tile_list = new List<Tile>();
+            var tile_list = new List<InventoryTile>();
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
                 if (row != null)
@@ -209,6 +210,53 @@ namespace Battlespire
             }
 
             return tile_list;
+        }
+
+        public void MoveInventoryItem(int _item_id, int _origin_tile_id, int _target_tile_id)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter item_id = new("@item_id", MySqlDbType.Int32)
+            {
+                Value = _item_id
+            };
+            MySqlParameter origin_tile_id = new("@origin_tile_id", MySqlDbType.Int32)
+            {
+                Value = _origin_tile_id
+            };
+            MySqlParameter target_tile_id = new("@target_tile_id", MySqlDbType.Int32)
+            {
+                Value = _target_tile_id
+            };
+
+            procedure_params.Add(item_id);
+            procedure_params.Add(origin_tile_id);
+            procedure_params.Add(target_tile_id);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call MoveInventoryItem(@item_id, @origin_tile_id, @target_tile_id)", procedure_params.ToArray());
+
+        }
+
+        public void EquipItem(int _player_id, int _item_id)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter item_id = new("@item_id", MySqlDbType.Int32)
+            {
+                Value = _item_id
+            };
+            MySqlParameter player_id = new("@player_id", MySqlDbType.Int32)
+            {
+                Value = _player_id
+            };
+
+            procedure_params.Add(player_id);
+            procedure_params.Add(item_id);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call EquipItem(@player_id, @item_id)", procedure_params.ToArray());
+
         }
     }
 }

@@ -14,6 +14,9 @@ namespace DAT602_Project
     public partial class InventoryForm : Form
     {
         private Inventory _inventory;
+        private static InventoryTile initial_tile;
+        private static InventoryTile target_tile;
+
         public InventoryForm(Inventory inventory)
         {
             InitializeComponent();
@@ -21,6 +24,8 @@ namespace DAT602_Project
         }
 
         public Inventory Inventory { get => _inventory; set => _inventory = value; }
+        public InventoryTile Target_tile { get => target_tile; set => target_tile = value; }
+        public InventoryTile Initial_tile { get => initial_tile; set => initial_tile = value; }
 
         private void InventoryWindow_Load(object sender, EventArgs e)
         {
@@ -37,6 +42,7 @@ namespace DAT602_Project
             }
 
         }
+
 
         public void GenerateBoard()
         {
@@ -64,8 +70,8 @@ namespace DAT602_Project
 
         public void UpdateBoard()
         {
-            List<Tile> Tile_list = Inventory.Tile_list;
-            List<Item> Item_list = Inventory.Items;
+            List<InventoryTile> Tile_list = Inventory.Tile_list;
+            List<Item> Item_list = Inventory.Item_list;
 
             for (int i = 0; i < inventory_board.Controls.Count; i++)
             {
@@ -85,7 +91,7 @@ namespace DAT602_Project
 
             var query = from entity in Item_list
                         join tile in Tile_list on entity.Tile_id equals tile.Id
-                        select new { entity.Entity_id, entity.Tile_id, entity.Name};
+                        select new { entity.Entity_id, entity.Tile_id, entity.Name, entity.Is_equipped };
 
             foreach (var entity in query)
             {
@@ -105,7 +111,19 @@ namespace DAT602_Project
                 {
                     inventory_board.Controls[entity.Tile_id.ToString()].BackColor = Color.Blue;
                 }
+                Console.WriteLine(entity.Is_equipped);
+                if (entity.Is_equipped == true)
+                {
+                    inventory_board.Controls[entity.Tile_id.ToString()].Text = "E";
+                }
             }
+        }
+
+        private void equip_button_Click(object sender, EventArgs e)
+        {
+            Inventory.EquipItem(Initial_tile);
+            Initial_tile = null;
+            GenerateBoard();
         }
     }
 }
