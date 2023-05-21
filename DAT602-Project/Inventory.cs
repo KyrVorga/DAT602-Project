@@ -26,7 +26,6 @@ namespace DAT602_Project
             Item_list = db_connection.GetEntityInventory(entity_id);
             _inventory_form = new InventoryForm(this);
         }
-
         public void MoveItem()
         {
             InventoryTile target = InventoryForm.Target_tile;
@@ -77,19 +76,23 @@ namespace DAT602_Project
 
         public void EquipItem(Tile clicked_tile)
         {
-            GameDAO db_connection = new();
-
-            var query = from item in Item_list
-                         join tile in Tile_list on item.Tile_id equals tile.Id
-                         where tile.Id == clicked_tile.Id
-                         select new { item.Entity_id };
-
-            foreach (var item in query)
+            if (clicked_tile != null)
             {
-                if (item != null)
+                GameDAO db_connection = new();
+
+                var query = from item in Item_list
+                            join tile in Tile_list on item.Tile_id equals tile.Id
+                            where tile.Id == clicked_tile.Id
+                            select new { item.Entity_id };
+
+                foreach (var item in query)
                 {
-                    db_connection.EquipItem(Owner_id, item.Entity_id);
+                    if (item != null)
+                    {
+                        db_connection.EquipItem(Owner_id, item.Entity_id);
+                    }
                 }
+                Item_list = db_connection.GetEntityInventory(Owner_id);
             }
         }
 

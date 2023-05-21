@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -32,15 +33,22 @@ namespace DAT602_Project
             Player player = Board.Current_player;
             if (player != null)
             {
-                player_health_label.Text = string.Format("Health: {0}", player.Health);
-                player_attack_label.Text = string.Format("Attack: {0}", player.Attack);
-                player_defense_label.Text = string.Format("Defense: {0}", player.Defense);
-                player_healing_label.Text = string.Format("Healing: {0}", player.Healing);
                 player_name_label.Text = Game.Username;
+                player.CalculateStats();
+                UpdateStats();
 
                 GenerateBoard();
             }
 
+        }
+
+        public void UpdateStats()
+        {
+            Player player = Board.Current_player;
+            player_health_label.Text = string.Format("Health: {0}", player.Health);
+            player_attack_label.Text = string.Format("Attack: {0}", player.Attack);
+            player_defense_label.Text = string.Format("Defense: {0}", player.Defense);
+            player_healing_label.Text = string.Format("Healing: {0}", player.Healing);
         }
 
 
@@ -111,10 +119,9 @@ namespace DAT602_Project
                 {
                     inventory_board.Controls[entity.Tile_id.ToString()].BackColor = Color.Blue;
                 }
-                Console.WriteLine(entity.Is_equipped);
                 if (entity.Is_equipped == true)
                 {
-                    inventory_board.Controls[entity.Tile_id.ToString()].Text = "E";
+                    inventory_board.Controls[entity.Tile_id.ToString()].BackColor = Color.Pink;
                 }
             }
         }
@@ -124,6 +131,7 @@ namespace DAT602_Project
             Inventory.EquipItem(Initial_tile);
             Initial_tile = null;
             GenerateBoard();
+            UpdateStats();
         }
     }
 }

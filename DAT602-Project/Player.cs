@@ -29,6 +29,35 @@ namespace DAT602_Project
             Inventory = new(Entity_id);
         }
 
+        public void CalculateStats()
+        {
+
+            var query = from item in Inventory.Item_list
+                        where item.Is_equipped == true
+                        select new { item.Attack, item.Healing, item.Health, item.Defense };
+
+            int total_attack = 0;
+            int total_defense = 0;
+            int total_health = 0;
+            int total_healing = 0;
+
+            foreach (var item in query)
+            {
+                if (item != null)
+                {
+                    total_attack += item.Attack;
+                    total_defense += item.Defense;
+                    total_health += item.Health;
+                    total_healing += item.Healing;
+                }
+
+            }
+            Attack = total_attack;
+            Defense = total_defense;
+            Health = total_health;
+            Healing = total_healing;
+        }
+
         public int Health { get => _health; set => _health = value; }
         public int Current_health { get => _current_health; set => _current_health = value; }
         public int Attack { get => _attack; set => _attack = value; }
