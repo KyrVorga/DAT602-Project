@@ -69,7 +69,7 @@ namespace DAT602_Project
             Item_list = db_connection.GetEntityInventory(Owner_id);
             InventoryForm.Target_tile = null;
             InventoryForm.Initial_tile = null;
-            InventoryForm.GenerateBoard();
+            InventoryForm.UpdateBoard();
             // call MoveItem from database to move Item1 from Tile A to Tile B
             // if targetTile has an item, call MoveItem to move Item2 from Tile B to Tile A
         }

@@ -58,9 +58,10 @@ namespace DAT602_Project
             int tiles_vertical = 5;
             int board_width = inventory_board.Width;
             int tile_dimension = board_width / tiles_accross;
+            List<InventoryTile> Tile_list = Inventory.Tile_list;
 
-            inventory_board.Controls.Clear();
-
+            //inventory_board.Controls.Clear();
+            int index = 0;
             for (int i = 0; i < tiles_accross; i++)
             {
                 for (int j = 0; j < tiles_vertical; j++)
@@ -70,7 +71,10 @@ namespace DAT602_Project
                     pictureBox.Width = tile_dimension;
                     pictureBox.Height = tile_dimension;
                     pictureBox.Location = new Point(i * (pictureBox.Height + 1), j * (pictureBox.Width + 1));
+
+                    pictureBox.Click += Tile_list[index].Tile_Click;
                     inventory_board.Controls.Add(pictureBox);
+                    index++;
                 }
             }
             UpdateBoard();
@@ -91,7 +95,6 @@ namespace DAT602_Project
                 // remove previous Tile_click event handler
 
 
-                box.Click += tile.Tile_Click;
             }
 
 
@@ -130,7 +133,7 @@ namespace DAT602_Project
         {
             Inventory.EquipItem(Initial_tile);
             Initial_tile = null;
-            GenerateBoard();
+            UpdateBoard();
             UpdateStats();
         }
     }

@@ -64,6 +64,13 @@ namespace Battlespire
 
         public List<Tile> GetTilesByPlayer(Board board, int player_id)
         {
+            /*
+                    new MySqlParameter() {
+                        ParameterName = "@player_id",
+                        MySqlDbType =MySqlDbType.Int32,
+                        Value =player_id
+                        }
+            */
 
             List<MySqlParameter> procedure_params = new List<MySqlParameter>();
             MySqlParameter _player_id = new("@player_id", MySqlDbType.Int32)
