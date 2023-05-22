@@ -102,9 +102,15 @@ namespace Battlespire
             return tile_list;
         }
 
-        public List<Entity> LoadEntities()
+        public List<Entity> LoadEntities(int playerId)
         {
-            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetAllEntities()");
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter player_id = new("@player_id", MySqlDbType.VarChar, 50)
+            {
+                Value = playerId
+            };
+            procedure_params.Add(player_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetAllEntities(@player_id)", procedure_params.ToArray());
 
             var entity_list = new List<Entity>();
             foreach (DataRow row in query_result.Tables[0].Rows)
@@ -186,7 +192,7 @@ namespace Battlespire
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
                 //convert to named arguments 
-                Console.WriteLine(row["is_equipped"].ToString());
+                // Console.WriteLine(row["is_equipped"].ToString());
                 Item newEntity = new Item((int)row["entity_id"], (string)row["name"], (string)row["entity_type"], (int)row["tile_id"], (int)row["owner_id"], (int)row["health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (bool)row["is_equipped"]);
                 item_list.Add(newEntity);
               

@@ -21,12 +21,8 @@ namespace Battlespire
         private SettingsAdmin _settings_admin;
         private SettingsUser _settings_user;
         private static String _username;
-        private static List<Entity> entitiy_list;
-        private static List<Tile> tile_list;
         private static Board board;
 
-        public static List<Entity> Entitiy_list { get => entitiy_list; set => entitiy_list = value; }
-        public static List<Tile> Tile_list { get => tile_list; set => tile_list = value; }
         public static string Username { get => _username; set => _username = value; }
         public static Board Board { get => board; set => board = value; }
 
@@ -40,17 +36,32 @@ namespace Battlespire
 
             Board.GenerateBoard();
         }
-
-        private void update_chat_button_Click(object sender, EventArgs e)
+        private void UpdateChat()
         {
             GameDAO db_connection = new();
             UpdateListbox(chat_box, db_connection.GetChat());
         }
-
-        private void update_leaderboard_button_Click(object sender, EventArgs e)
+        private void UpdateLeaderboard()
         {
             GameDAO db_connection = new();
             UpdateListbox(leaderboard_box, db_connection.GetLeaderboard());
+        }
+
+        private void LoadEntities()
+        {
+            GameDAO db_connection = new();
+
+            Board.Entitiy_list = db_connection.LoadEntities(Board.Current_player.Entity_id);
+
+        }
+        private void update_chat_button_Click(object sender, EventArgs e)
+        {
+            UpdateChat();
+        }
+
+        private void update_leaderboard_button_Click(object sender, EventArgs e)
+        {
+            UpdateLeaderboard();
         }
 
         private void UpdateListbox(ListBox listbox, List<String> list)
@@ -86,6 +97,29 @@ namespace Battlespire
             Inventory inventory = Board.Current_player.Inventory;
             InventoryForm inventoryForm = inventory.InventoryForm;
             inventoryForm.Show();
+        }
+
+        private void update_timer_Tick(object sender, EventArgs e)
+        {
+            Board.UpdateBoard();
+            LoadEntities();
+        }
+
+        private void chat_refresh_Tick(object sender, EventArgs e)
+        {
+            UpdateChat();
+        }
+
+        private void leaderboard_refresh_Tick(object sender, EventArgs e)
+        {
+            UpdateLeaderboard();
+        }
+
+        private void Game_Load(object sender, EventArgs e)
+        {
+
+            UpdateLeaderboard();
+            UpdateChat();
         }
     }
 }

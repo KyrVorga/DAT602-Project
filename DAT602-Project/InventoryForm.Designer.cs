@@ -154,8 +154,8 @@
             Controls.Add(drop_item_button);
             Controls.Add(inventory_board);
             Name = "InventoryForm";
-            Text = "InventoryWindow";
-            Load += InventoryWindow_Load;
+            Text = "InventoryForm";
+            Load += InventoryForm_Load;
             ResumeLayout(false);
             PerformLayout();
         }

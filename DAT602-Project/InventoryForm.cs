@@ -28,7 +28,7 @@ namespace DAT602_Project
         public InventoryTile Target_tile { get => target_tile; set => target_tile = value; }
         public InventoryTile Initial_tile { get => initial_tile; set => initial_tile = value; }
 
-        private void InventoryWindow_Load(object sender, EventArgs e)
+        private void InventoryForm_Load(object sender, EventArgs e)
         {
             Player player = Board.Current_player;
             if (player != null)
@@ -133,8 +133,10 @@ namespace DAT602_Project
         {
             Inventory.EquipItem(Initial_tile);
             Initial_tile = null;
-            UpdateBoard();
+            Player player = Board.Current_player;
+            player.CalculateStats();
             UpdateStats();
+            UpdateBoard();
         }
     }
 }

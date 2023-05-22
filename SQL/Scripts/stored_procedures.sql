@@ -640,12 +640,13 @@ delimiter ;
    
 drop procedure if exists GetAllEntities; -- excluding items
 delimiter //
-create procedure GetAllEntities()
+create procedure GetAllEntities(in _player_id int)
 begin
 	
 	select *
 	from entity e 
-	where e.entity_type != "item";
+	where e.entity_type != "item"
+	and e.entity_id != _player_id;
 
 	
 end //

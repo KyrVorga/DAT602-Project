@@ -11,17 +11,19 @@ select * from entity where entity_type = "chest";
 
 call GetTilesByPlayer(82, 10, 10);
 update entity set tile_id = 3442 where entity_id = 89;
-update entity set is_equipped = true where entity_id = 3;
+update entity set attack = 10 where entity_id = 93;
 
 
 select * from entity where entity_type = "player" and account_id = 11;
 
-	call CreateItem(89);
+	call CreateItem(92);
 
-call GetEntityInventory(89)
+call GetEntityInventory(90)
 
-call GetEntityInventory(91)
+call GetEntityInventory(92)
 call EquipItem(93, 94)
+
+delete from entity where entity_id = 95
 
 update entity set tile_id =8062 where entity_id = 95
 

@@ -19,10 +19,37 @@ namespace DAT602_Project
         public override void Tile_Click(object sender, EventArgs e)
         {
             PictureBox pictureBox = (PictureBox)sender;
-            Console.WriteLine(this.ToString());
 
-            int target_tile_id = int.Parse(pictureBox.Name);
-            Board.PlayerMove(target_tile_id);
+            //Console.WriteLine(this.ToString());
+            int tile_id = Int32.Parse(pictureBox.Name);
+
+            var query = from entity in Board.Entitiy_list
+                        join tile in Board.Tile_list on entity.Tile_id equals tile.Id
+                        where entity.Tile_id == tile_id
+                        select new { entity.Entity_id, entity.Tile_id, entity.Entity_type };
+
+            if (query.Count() > 0 )
+            {
+                foreach (var entity in query)
+                {
+                    if (entity.Entity_type == "player")
+                    {
+                        // player click function
+                    }
+                    else if (entity.Entity_type == "monster")
+                    {
+                        // monster click function
+                    }
+                    else if (entity.Entity_type == "chest")
+                    {
+                        // chest click function
+                        ChestTransferInventory transferWindow = new ChestTransferInventory(Board.Current_player.Inventory, entity.Entity_id);
+                    }
+                }
+            } else
+            {
+                Board.PlayerMove(tile_id);
+            }
         }
     }
 }

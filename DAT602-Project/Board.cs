@@ -25,7 +25,6 @@ namespace DAT602_Project
             GameDAO db_connection = new();
 
             Current_player = db_connection.LoadPlayer(Game.Username);
-            Entitiy_list = db_connection.LoadEntities();
             Tile_list = GetTiles();
         }
         public static List<Entity> Entitiy_list { get => entitiy_list; set => entitiy_list = value; }
