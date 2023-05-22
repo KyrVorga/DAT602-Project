@@ -2,21 +2,32 @@ use `battlespire`;
 
 select * from account;
 select * from entity;
-select * from entity where entity_type = "player" and account_id = 11;
 
 
 select * from entity where entity_type = "player";
 select * from entity where entity_type = "monster";
-select * from entity where entity_type = "item";
+select * from entity where entity_type = "item" and owner_id = 90;
 select * from entity where entity_type = "chest";
 
 call GetTilesByPlayer(82, 10, 10);
+update entity set tile_id = 3442 where entity_id = 89;
+update entity set is_equipped = true where entity_id = 3;
 
 
+select * from entity where entity_type = "player" and account_id = 11;
+
+	call CreateItem(89);
+
+call GetEntityInventory(89)
+
+call GetEntityInventory(91)
+call EquipItem(93, 94)
+
+update entity set tile_id =8062 where entity_id = 95
 
 select * from tile where x >= 100;
 
-select * from tile where tile_type = 'inventory';
+select * from tile where tile_type = 'inventory' and owner_id = 89;
 
 	select ceil(pow(sqrt(pow(abs(t.x), 2) + pow(abs(t.x), 2)), 1.25))
 	from entity e 

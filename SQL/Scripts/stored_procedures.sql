@@ -206,26 +206,19 @@ delimiter ;
 -- should allow players to equip item from chest directly.
 drop procedure if exists MoveInventoryItem;
 delimiter //
-create procedure MoveInventoryItem(in _origin_tile_id int, in _target_tile_id int)
+create procedure MoveInventoryItem(in _item_id int, in _origin_tile_id int, in _target_tile_id int)
 begin
 	
-	declare _origin_tile_owner int;
-	declare _target_tile_owner int;
 		
 	set autocommit = off;
 	start transaction;
 
-		set _origin_tile_owner = GetEntityIDFromInventoryTile(_origin_tile_id);
-		set _target_tile_owner = GetEntityIDFromInventoryTile(_target_tile_id);
 
 		update entity 
-		set tile_id = _target_tile_id,
-			owner_id = _target_tile_owner
-		where tile_id = _origin_tile_id;
+		set tile_id = _target_tile_id
+		where tile_id = _origin_tile_id
+		and entity_id = _item_id;
 
-		-- find owners of origin and target tiles and update.
-		call UpdateEntityInventory(_origin_tile_owner);
-		call UpdateEntityInventory(_target_tile_owner);
 	
 	commit;
 
@@ -346,7 +339,7 @@ begin
 		end loop inventory_tile_loop;
 		
 		-- create the new item
-		insert into entity (name, health, attack, defense, healing, entity_type, owner_id, tile_id)
+		insert into entity (name, health, attack, defense, healing, entity_type, owner_id, tile_id, is_equipped)
 		values (
 			concat(_item_type, _tier),
 			ceil((rand() * (1.3 - 0.7) + 0.7) * _health),
@@ -355,7 +348,8 @@ begin
 			ceil((rand() * (1.3 - 0.7) + 0.7) * _healing),
 			"item",
 			_chest_id,
-			_inventory_tile
+			_inventory_tile,
+			0
 		);
 	commit;
 end //
@@ -683,6 +677,116 @@ begin
 	
 end //
 delimiter ; 
+
+
+
+drop procedure if exists GetEntityInventory; -- excluding items
+delimiter //
+create procedure GetEntityInventory(in _entity_id int)
+begin
+	
+		
+	select * 
+	from entity 
+	where entity_type = "item"
+	and owner_id = _entity_id;
+
+	
+end //
+delimiter ; 
+
+drop procedure if exists GetEntityInventoryTiles; -- excluding items
+delimiter //
+create procedure GetEntityInventoryTiles(in _entity_id int)
+begin
+	
+		
+	select * 
+	from tile 
+	where tile_type = 'inventory'
+	and owner_id = _entity_id;
+
+	
+end //
+delimiter ; 
+
+
+drop procedure if exists EquipItem;
+delimiter //
+create procedure EquipItem(in _player_id int, in _item_id int)
+begin
+	
+	declare new_item_name varchar(50);
+	declare already_equipped int;
+	declare already_equipped_id int;
+	
+	select name, is_equipped 
+	into new_item_name, already_equipped
+	from entity e 
+	where e.entity_id = _item_id;
+
+	set autocommit = off;
+	start transaction;
+	if already_equipped = 1 then
+
+		update entity 
+		set is_equipped = 0
+		where entity_id = _item_id;
+	else
+		
+
+		if new_item_name like 'Sword%' then
+			select entity_id, is_equipped
+			into already_equipped_id, already_equipped
+			from entity e 
+			where owner_id = _player_id
+			and is_equipped = 1
+			and name like 'Sword%';
+			
+			
+		elseif new_item_name like 'Armour%' then
+			select entity_id, is_equipped
+			into already_equipped_id, already_equipped
+			from entity e 
+			where owner_id = _player_id
+			and is_equipped = 1
+			and name like 'Armour%';
+			
+		elseif new_item_name like 'Amulet%' then
+			select entity_id, is_equipped
+			into already_equipped_id, already_equipped
+			from entity e 
+			where owner_id = _player_id
+			and is_equipped = 1
+			and name like 'Amulet%';
+			
+		else
+			select entity_id, is_equipped
+			into already_equipped_id, already_equipped
+			from entity e 
+			where owner_id = _player_id
+			and is_equipped = 1
+			and name like 'Shield%';
+			
+		end if;
+	
+		if already_equipped = 1 then
+			
+			update entity 
+			set is_equipped = 0
+			where entity_id = already_equipped_id;
+		end if;
+	
+		update entity 
+		set is_equipped = 1
+		where entity_id = _item_id;
+	end if;
+
+		commit;
+
+end //
+delimiter ; 
+
 
 -- Below is used for the Create Database Task
 
