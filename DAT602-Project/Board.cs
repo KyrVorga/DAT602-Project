@@ -51,7 +51,7 @@ namespace DAT602_Project
                     GameDAO db_connection = new();
                     db_connection.MovePlayer(target_tile.Id, Current_player.Entity_id);
                     Tile_list = GetTiles();
-                    GenerateBoard();
+                    UpdateBoard();
                 }
             }
         }
@@ -73,8 +73,8 @@ namespace DAT602_Project
             int ending_position = ((tiles_accross - 1) / 2);
             int starting_position = ((tiles_accross - 1) / 2) * -1;
 
-            Game.board_panel.Controls.Clear();
-
+            //Game.board_panel.Controls.Clear();
+            int index = 0;
             for (int i = starting_position;  i <= ending_position; i++)
             {
                 for (int j = starting_position; j <= ending_position; j++)
@@ -83,8 +83,10 @@ namespace DAT602_Project
                     pictureBox.BackColor = Color.Gray;
                     pictureBox.Width = tile_width;
                     pictureBox.Height = tile_height;
-                    pictureBox.Location = new Point(board_width / 2 + i * (pictureBox.Height + 1), board_height / 2 + j * (pictureBox.Width + 1));
+                    pictureBox.Location = new Point(board_width / 2 + i * (pictureBox.Width + 1), board_height / 2 + j * (pictureBox.Height + 1));
+                    pictureBox.Click += Tile_list[index].Tile_Click;
                     Game.board_panel.Controls.Add(pictureBox);
+                    index++;
                 }
             }
 
@@ -105,9 +107,12 @@ namespace DAT602_Project
                 box.Name = tile.Id.ToString();
                 box.BackColor = Color.Gray;
                 // remove previous Tile_click event handler
-                
-                
-                box.Click += tile.Tile_Click;
+                //if (!tile.have_click)
+                //{
+                //    box.Click += tile.Tile_Click;
+                //    tile.have_click = true;
+                //}
+
             }
 
 

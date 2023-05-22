@@ -13,6 +13,8 @@ namespace DAT602_Project
         private int _x;
         private int _y;
         private string _tile_type;
+        private EventHandler click_ref;
+        public bool have_click = false;
         public Tile(int id, int x, int y, string tile_type)
         {
             Id = id;
@@ -25,6 +27,7 @@ namespace DAT602_Project
         public int X { get => _x; set => _x = value; }
         public int Y { get => _y; set => _y = value; }
         public string Tile_type { get => _tile_type; set => _tile_type = value; }
+        public EventHandler Click_ref { get => click_ref; set => click_ref = value; }
 
         public override string ToString()
         {
