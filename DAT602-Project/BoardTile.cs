@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAT602_Project
+namespace Battlespire
 {
     internal class BoardTile : Tile
     {
@@ -44,6 +44,7 @@ namespace DAT602_Project
                     {
                         // chest click function
                         ChestTransferInventory transferWindow = new ChestTransferInventory(Board.Current_player.Inventory, entity.Entity_id);
+                        transferWindow.Show();
                     }
                 }
             } else

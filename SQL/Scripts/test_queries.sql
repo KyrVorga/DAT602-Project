@@ -16,9 +16,9 @@ update entity set attack = 10 where entity_id = 93;
 
 select * from entity where entity_type = "player" and account_id = 11;
 
-	call CreateItem(92);
+	call CreateItem(88);
 
-call GetEntityInventory(90)
+call GetEntityInventory(88)
 
 call GetEntityInventory(92)
 call EquipItem(93, 94)

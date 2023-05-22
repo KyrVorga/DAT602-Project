@@ -1,4 +1,4 @@
-﻿namespace DAT602_Project
+﻿namespace Battlespire
 {
     partial class InventoryForm
     {

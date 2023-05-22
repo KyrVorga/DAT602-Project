@@ -1,5 +1,4 @@
-﻿using Battlespire;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -10,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace DAT602_Project
+namespace Battlespire
 {
     public partial class InventoryForm : Form
     {
@@ -22,6 +21,16 @@ namespace DAT602_Project
         {
             InitializeComponent();
             Inventory = inventory;
+
+            //Player player = Board.Current_player;
+            //if (player != null)
+            //{
+            //    player_name_label.Text = Game.Username;
+            //    player.CalculateStats();
+            //    UpdateStats();
+
+            //    GenerateBoard();
+            //}
         }
 
         public Inventory Inventory { get => _inventory; set => _inventory = value; }
