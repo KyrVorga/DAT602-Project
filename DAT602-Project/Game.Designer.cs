@@ -42,6 +42,7 @@
             board_refresh = new System.Windows.Forms.Timer(components);
             chat_refresh = new System.Windows.Forms.Timer(components);
             leaderboard_refresh = new System.Windows.Forms.Timer(components);
+            MonsterMove = new System.Windows.Forms.Timer(components);
             ((System.ComponentModel.ISupportInitialize)inventory_icon).BeginInit();
             SuspendLayout();
             // 
@@ -163,6 +164,12 @@
             leaderboard_refresh.Interval = 10000;
             leaderboard_refresh.Tick += leaderboard_refresh_Tick;
             // 
+            // MonsterMove
+            // 
+            MonsterMove.Enabled = true;
+            MonsterMove.Interval = 1500;
+            MonsterMove.Tick += MonsterMove_Tick;
+            // 
             // Game
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -202,5 +209,6 @@
         private System.Windows.Forms.Timer board_refresh;
         private System.Windows.Forms.Timer chat_refresh;
         private System.Windows.Forms.Timer leaderboard_refresh;
+        private System.Windows.Forms.Timer MonsterMove;
     }
 }

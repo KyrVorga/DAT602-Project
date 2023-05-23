@@ -10,9 +10,9 @@ using System.Windows.Forms;
 
 namespace Battlespire
 {
-    public partial class ChestTransferForm : Form // : InventoryForm
+    public partial class ChestTransferForm : InventoryForm // Form//
     {
-        public ChestTransferForm() //Inventory inventory, int chest_id) : base(inventory)
+        public ChestTransferForm(Inventory inventory, int chest_id) : base(inventory) // ) //
         {
             InitializeComponent();
         }

@@ -43,14 +43,15 @@
             // 
             // inventory_board
             // 
-            inventory_board.Location = new Point(12, 193);
+            inventory_board.Location = new Point(12, 222);
+            inventory_board.Margin = new Padding(0);
             inventory_board.Name = "inventory_board";
-            inventory_board.Size = new Size(257, 138);
+            inventory_board.Size = new Size(260, 130);
             inventory_board.TabIndex = 0;
             // 
             // drop_item_button
             // 
-            drop_item_button.Location = new Point(193, 167);
+            drop_item_button.Location = new Point(197, 190);
             drop_item_button.Name = "drop_item_button";
             drop_item_button.Size = new Size(75, 23);
             drop_item_button.TabIndex = 1;
@@ -96,7 +97,7 @@
             // inventory_label
             // 
             inventory_label.AutoSize = true;
-            inventory_label.Location = new Point(12, 175);
+            inventory_label.Location = new Point(12, 201);
             inventory_label.Name = "inventory_label";
             inventory_label.Size = new Size(57, 15);
             inventory_label.TabIndex = 6;
@@ -129,7 +130,7 @@
             // 
             // equip_button
             // 
-            equip_button.Location = new Point(112, 167);
+            equip_button.Location = new Point(116, 190);
             equip_button.Name = "equip_button";
             equip_button.Size = new Size(75, 23);
             equip_button.TabIndex = 10;
@@ -141,7 +142,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(281, 343);
+            ClientSize = new Size(284, 361);
             Controls.Add(equip_button);
             Controls.Add(equipment_panel);
             Controls.Add(player_name_label);

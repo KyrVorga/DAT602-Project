@@ -28,12 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
+            chest_inventory_board = new Panel();
+
+            chest_inventory_board.Location = new Point(12, 364);
+            chest_inventory_board.Name = "inventory_board";
+            chest_inventory_board.Size = new Size(260, 130);
+            chest_inventory_board.TabIndex = 0;
+
             this.components = new System.ComponentModel.Container();
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(300, 506);
             this.Text = "ChestTransferForm";
         }
 
         #endregion
+
+        private Panel chest_inventory_board;
     }
 }

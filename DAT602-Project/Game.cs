@@ -73,6 +73,23 @@ namespace Battlespire
                 listbox.Items.Add(item);
             });
         }
+        private void MoveNPCMonsters()
+        {
+
+            GameDAO db_connection = new();
+
+            var query = from entity in Board.Entitiy_list
+                        select new { entity.Entity_id, entity.Entity_type };
+
+            foreach (var entity in query)
+            {
+                if (entity.Entity_type == "monster")
+                {
+                    db_connection.MoveMonster(entity.Entity_id);
+                }
+            }
+        }
+
 
         private void settings_button_Click(object sender, EventArgs e)
         {
@@ -120,6 +137,11 @@ namespace Battlespire
 
             UpdateLeaderboard();
             UpdateChat();
+        }
+
+        private void MonsterMove_Tick(object sender, EventArgs e)
+        {
+            MoveNPCMonsters();
         }
     }
 }

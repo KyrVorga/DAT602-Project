@@ -271,5 +271,21 @@ namespace Battlespire
             MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call EquipItem(@player_id, @item_id)", procedure_params.ToArray());
 
         }
+
+        public void MoveMonster(int p_monster_id)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter monster_id = new("@p_monster_id", MySqlDbType.Int32)
+            {
+                Value = p_monster_id
+            };
+
+            procedure_params.Add(monster_id);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call MoveMonsterNPC(@p_monster_id)", procedure_params.ToArray());
+
+        }
     }
 }

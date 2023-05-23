@@ -120,6 +120,7 @@ namespace Battlespire
             var query = from entity in entitiy_list
                         join tile in tile_list on entity.Tile_id equals tile.Id
                         select new { entity.Entity_id, entity.Tile_id, entity.Entity_type };
+
             foreach (var entity in query)
             {
                 if (entity.Entity_id == current_player.Entity_id)

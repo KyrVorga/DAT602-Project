@@ -9,6 +9,9 @@ select * from entity where entity_type = "monster";
 select * from entity where entity_type = "item" and owner_id = 90;
 select * from entity where entity_type = "chest";
 
+
+call MoveMonsterNPC(80);
+
 call GetTilesByPlayer(82, 10, 10);
 update entity set tile_id = 3442 where entity_id = 89;
 update entity set attack = 10 where entity_id = 93;

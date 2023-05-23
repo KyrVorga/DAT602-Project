@@ -671,10 +671,59 @@ delimiter //
 create procedure MovePlayer(in _target_tile int, in _player_id int)
 begin
 	
+	set autocommit = off;
+	start transaction;
 		update entity 
 		set tile_id = _target_tile
 		where entity_id = _player_id;
+	commit;
+	
+end //
+delimiter ; 
 
+
+drop procedure if exists MoveMonsterNPC; -- excluding items
+delimiter //
+create procedure MoveMonsterNPC(in p_monster_id int)
+begin
+	
+	declare _x int;
+	declare _y int;
+	declare _target_tile int;
+	declare _count int;
+
+  	-- get the tile id of the monster
+	select x, y
+	into _x, _y
+	from tile t 
+	join entity e on e.tile_id = t.tile_id 
+	where e.entity_id = p_monster_id;
+
+	--
+	select tile_id
+	into _target_tile
+	from tile t 
+	where 
+		tile_type = 'ground'  &&
+		x >= _x - 1 &&
+		x <= _x + 1 &&
+		y >= _y - 1 &&
+		y <= _y + 1
+	order by rand()
+	limit 1;
+
+	select _target_tile;
+	
+	
+	
+	set autocommit = off;
+	start transaction;
+
+		update entity 
+		set tile_id = _target_tile
+		where entity_id = p_monster_id;
+	
+	commit;
 	
 end //
 delimiter ; 
