@@ -8,7 +8,6 @@ namespace Battlespire
 {
     internal class Monster : Entity
     {
-        private int _entity_id;
         private string _name;
         private int _health;
         private int _current_health;

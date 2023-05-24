@@ -62,7 +62,7 @@ namespace Battlespire
             else return false;
         }
 
-        public List<Tile> GetTilesByPlayer(Board board, int player_id)
+        public List<Tile> GetTilesByPlayer(Game board, int player_id)
         {
             /*
                     new MySqlParameter() {
@@ -201,7 +201,7 @@ namespace Battlespire
             return item_list;
         }
 
-        public List<InventoryTile> GetEntityInventoryTiles(int entity_id, Inventory inventory)
+        public List<InventoryTile> GetEntityInventoryTiles(int entity_id)
         {
 
             List<MySqlParameter> procedure_params = new List<MySqlParameter>();

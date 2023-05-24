@@ -1,6 +1,6 @@
 ﻿namespace Battlespire
 {
-    partial class Game
+    partial class Mainform
     {
         /// <summary>
         /// Required designer variable.

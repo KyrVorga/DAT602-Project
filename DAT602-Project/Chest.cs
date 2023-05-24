@@ -8,10 +8,12 @@ namespace Battlespire
 {
     public class Chest : Entity
     {
+        private ChestInventory _inventory;
         public Chest(int entity_id, string entity_type, int tile_id) : base(entity_id, entity_type, tile_id) {
+            Inventory = new(entity_id);
         }
 
-
+        internal ChestInventory Inventory { get => _inventory; set => _inventory = value; }
 
         public override string ToString()
         {

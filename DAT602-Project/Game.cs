@@ -1,147 +1,153 @@
 ﻿using Battlespire;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Data.Common;
-using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Formats.Asn1.AsnWriter;
-using static System.Net.Mime.MediaTypeNames;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace Battlespire
 {
-    public partial class Game : Form
+    public class Game
     {
-        private Login _login_form;
-        private SettingsAdmin _settings_admin;
-        private SettingsUser _settings_user;
-        private static String _username;
-        private static Board board;
 
-        public static string Username { get => _username; set => _username = value; }
-        public static Board Board { get => board; set => board = value; }
-
-        public Game(Login login, String username)
+        private static Mainform _mainform;
+        private static Player _currentPlayer;
+        private static List<Entity> _entities = new();
+        private static List<Tile> _tiles = new();
+        private static GameDAO _dbConnection;
+        public Game(Mainform mainform)
         {
-            InitializeComponent();
-            _login_form = login;
-            Username = username;
+            Mainform = mainform;
 
-            Board = new Board(this);
-
-            Board.GenerateBoard();
+            DbConnection = new();
+            Current_player = DbConnection.LoadPlayer(Mainform.Username);
+            Tiles = GetTiles();
         }
-        private void UpdateChat()
+        public static Mainform Mainform { get => _mainform; set => _mainform = value; }
+        public static Player Current_player { get => _currentPlayer; set => _currentPlayer = value; }
+        public static List<Entity> Entities { get => _entities; set => _entities = value; }
+        public static List<Tile> Tiles { get => _tiles; set => _tiles = value; }
+        internal static GameDAO DbConnection { get => _dbConnection; set => _dbConnection = value; }
+
+        //public void PlayerMove(int target_tile_id)
+        //{
+
+        //    var target_tile = Tile_list
+        //        .First(tile => tile.Id == target_tile_id);
+
+        //    var current_tile = Tile_list
+        //        .First(tile => tile.Id == Current_player.Tile_id);
+
+        //    if (current_tile != null && target_tile != null)
+        //    {
+        //        if (current_tile.X <= target_tile.X + 1 && current_tile.X >= target_tile.X - 1 && current_tile.Y <= target_tile.Y + 1 && current_tile.Y >= target_tile.Y - 1)
+        //        {
+        //            Current_player.Tile_id = target_tile.Id;
+
+        //            GameDAO db_connection = new();
+        //            db_connection.MovePlayer(target_tile.Id, Current_player.Entity_id);
+        //            Tile_list = GetTiles();
+        //            UpdateBoard();
+        //        }
+        //    }
+        //}
+
+        public List<Tile> GetTiles()
         {
-            GameDAO db_connection = new();
-            UpdateListbox(chat_box, db_connection.GetChat());
+            return DbConnection.GetTilesByPlayer(this, Current_player.Entity_id);
         }
-        private void UpdateLeaderboard()
+        public List<Entity> GetEntities()
         {
-            GameDAO db_connection = new();
-            UpdateListbox(leaderboard_box, db_connection.GetLeaderboard());
-        }
-
-        private void LoadEntities()
-        {
-            GameDAO db_connection = new();
-
-            Board.Entitiy_list = db_connection.LoadEntities(Board.Current_player.Entity_id);
-
-        }
-        private void update_chat_button_Click(object sender, EventArgs e)
-        {
-            UpdateChat();
-        }
-
-        private void update_leaderboard_button_Click(object sender, EventArgs e)
-        {
-            UpdateLeaderboard();
-        }
-
-        private void UpdateListbox(ListBox listbox, List<String> list)
-        {
-            listbox.Items.Clear();
-
-            list.ForEach(item =>
-            {
-                listbox.Items.Add(item);
-            });
-        }
-        private void MoveNPCMonsters()
-        {
-
-            GameDAO db_connection = new();
-
-            var query = from entity in Board.Entitiy_list
-                        select new { entity.Entity_id, entity.Entity_type };
-
-            foreach (var entity in query)
-            {
-                if (entity.Entity_type == "monster")
-                {
-                    db_connection.MoveMonster(entity.Entity_id);
-                }
-            }
+            return DbConnection.LoadEntities(Current_player.Entity_id);
         }
 
+        //public void GenerateBoard()
+        //{
+        //    int tiles_accross = 11;
+        //    int tile_border = 1 * tiles_accross;
+        //    int board_width = Game.board_panel.Width - tile_border;
+        //    int board_height = Game.board_panel.Height - tile_border;
+        //    int tile_width = board_width / tiles_accross;
+        //    int tile_height = board_height / tiles_accross;
+        //    int ending_position = ((tiles_accross - 1) / 2);
+        //    int starting_position = ((tiles_accross - 1) / 2) * -1;
 
-        private void settings_button_Click(object sender, EventArgs e)
-        {
-            GameDAO db_connection = new();
-            Boolean admin_result = db_connection.checkIsAdmin(Username);
-            if (admin_result)
-            {
-                this.Hide();
-                SettingsAdmin admin = new SettingsAdmin(this);
-                admin.Show();
-            }
-            else
-            {
-                this.Hide();
-                SettingsUser user = new SettingsUser(this);
-                user.Show();
-            }
-        }
+        //    //Game.board_panel.Controls.Clear();
+        //    int index = 0;
+        //    for (int i = starting_position;  i <= ending_position; i++)
+        //    {
+        //        for (int j = starting_position; j <= ending_position; j++)
+        //        {
+        //            PictureBox pictureBox = new();
+        //            pictureBox.BackColor = Color.Gray;
+        //            pictureBox.Width = tile_width;
+        //            pictureBox.Height = tile_height;
+        //            pictureBox.Location = new Point(board_width / 2 + i * (pictureBox.Width + 1), board_height / 2 + j * (pictureBox.Height + 1));
+        //            pictureBox.Click += Tile_list[index].Tile_Click;
+        //            Game.board_panel.Controls.Add(pictureBox);
+        //            index++;
+        //        }
+        //    }
 
-        private void inventory_icon_Click(object sender, EventArgs e)
-        {
-            Inventory inventory = new Inventory(Board.Current_player.Entity_id);
-            InventoryForm inventoryForm = inventory.InventoryForm;
-            inventoryForm.Show();
-        }
 
-        private void update_timer_Tick(object sender, EventArgs e)
-        {
-            Board.UpdateBoard();
-            LoadEntities();
-        }
+        //    UpdateBoard();
+        //}
 
-        private void chat_refresh_Tick(object sender, EventArgs e)
-        {
-            UpdateChat();
-        }
 
-        private void leaderboard_refresh_Tick(object sender, EventArgs e)
-        {
-            UpdateLeaderboard();
-        }
+        //public void UpdateBoard()
+        //{
 
-        private void Game_Load(object sender, EventArgs e)
-        {
+        //    //Console.Write( Tile_list.Count);
+        //    for (int i = 0; i < Game.board_panel.Controls.Count; i++)
+        //    {
+        //        Tile tile = Tile_list[i];
+        //        Control box = Game.board_panel.Controls[i];
 
-            UpdateLeaderboard();
-            UpdateChat();
-        }
+        //        box.Name = tile.Id.ToString();
+        //        box.BackColor = Color.Gray;
+        //        // remove previous Tile_click event handler
+        //        //if (!tile.have_click)
+        //        //{
+        //        //    box.Click += tile.Tile_Click;
+        //        //    tile.have_click = true;
+        //        //}
 
-        private void MonsterMove_Tick(object sender, EventArgs e)
-        {
-            MoveNPCMonsters();
-        }
+        //    }
+
+
+
+
+        //    var query = from entity in entitiy_list
+        //                join tile in tile_list on entity.Tile_id equals tile.Id
+        //                select new { entity.Entity_id, entity.Tile_id, entity.Entity_type };
+
+        //    foreach (var entity in query)
+        //    {
+        //        if (entity.Entity_id == current_player.Entity_id)
+        //        {
+        //            Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Purple;
+        //        }
+        //        else if (entity.Entity_type == "player")
+        //        {
+        //            Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Green;
+        //        }
+        //        else if (entity.Entity_type == "monster")
+        //        {
+        //            Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Red;
+        //        }
+        //        else if (entity.Entity_type == "chest")
+        //        {
+        //            Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Yellow;
+        //        }
+        //    }
+
+        //    Game.board_panel.Controls[current_player.Tile_id.ToString()].BackColor = Color.BlueViolet;
+
+        //}
     }
 }

@@ -8,13 +8,13 @@ namespace Battlespire
 {
     internal class BoardTile : Tile
     {
-        private Board _board;
-        public BoardTile(int id, int x, int y, string tile_type, Board board) : base(id, x, y, tile_type)
+        private Game _board;
+        public BoardTile(int id, int x, int y, string tile_type, Game board) : base(id, x, y, tile_type)
         {
             Board = board;
         }
 
-        public Board Board { get => _board; set => _board = value; }
+        public Game Board { get => _board; set => _board = value; }
 
         public override void Tile_Click(object sender, EventArgs e)
         {
@@ -23,8 +23,8 @@ namespace Battlespire
             //Console.WriteLine(this.ToString());
             int tile_id = Int32.Parse(pictureBox.Name);
 
-            var query = from entity in Board.Entitiy_list
-                        join tile in Board.Tile_list on entity.Tile_id equals tile.Id
+            var query = from entity in Game.Entitiy_list
+                        join tile in Game.Tile_list on entity.Tile_id equals tile.Id
                         where entity.Tile_id == tile_id
                         select new { entity.Entity_id, entity.Tile_id, entity.Entity_type };
 
@@ -47,7 +47,7 @@ namespace Battlespire
                         //InventoryForm inventoryForm = inventory.InventoryForm;
                         //inventoryForm.Show();
                         
-                        ChestTransferForm transferWindow = new ChestTransferForm(Board.Current_player.Inventory, entity.Entity_id);
+                        ChestTransferForm transferWindow = new ChestTransferForm(Game.Current_player.Inventory, entity.Entity_id);
                         transferWindow.Show();
                     }
                 }

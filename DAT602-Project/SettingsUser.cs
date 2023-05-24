@@ -12,9 +12,9 @@ namespace Battlespire
 {
     public partial class SettingsUser : Form
     {
-        private Game _game;
+        private Mainform _game;
 
-        public SettingsUser(Game game)
+        public SettingsUser(Mainform game)
         {
             _game = game;
             InitializeComponent();
