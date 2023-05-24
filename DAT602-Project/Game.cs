@@ -111,7 +111,7 @@ namespace Battlespire
 
         private void inventory_icon_Click(object sender, EventArgs e)
         {
-            Inventory inventory = Board.Current_player.Inventory;
+            Inventory inventory = new Inventory(Board.Current_player.Entity_id);
             InventoryForm inventoryForm = inventory.InventoryForm;
             inventoryForm.Show();
         }

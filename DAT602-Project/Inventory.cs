@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Battlespire
 {
-    public class Inventory
+    public abstract class Inventory
     {
 
         private List<InventoryTile> _tile_list;
@@ -24,10 +24,11 @@ namespace Battlespire
             Owner_id = entity_id;
             Tile_list = db_connection.GetEntityInventoryTiles(entity_id, this);
             Item_list = db_connection.GetEntityInventory(entity_id);
-            _inventory_form = new InventoryForm(this);
         }
-        public void MoveItem()
+
+        public virtual void MoveItem()
         {
+            // extract these out to board
             InventoryTile target = InventoryForm.Target_tile;
             InventoryTile origin = InventoryForm.Initial_tile;
 
@@ -69,9 +70,6 @@ namespace Battlespire
             Item_list = db_connection.GetEntityInventory(Owner_id);
             InventoryForm.Target_tile = null;
             InventoryForm.Initial_tile = null;
-            InventoryForm.UpdateBoard();
-            // call MoveItem from database to move Item1 from Tile A to Tile B
-            // if targetTile has an item, call MoveItem to move Item2 from Tile B to Tile A
         }
 
         public void EquipItem(Tile clicked_tile)

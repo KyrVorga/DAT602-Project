@@ -43,6 +43,10 @@ namespace Battlespire
                     else if (entity.Entity_type == "chest")
                     {
                         // chest click function
+                        //Inventory inventory = Board.Current_player.Inventory;
+                        //InventoryForm inventoryForm = inventory.InventoryForm;
+                        //inventoryForm.Show();
+                        
                         ChestTransferForm transferWindow = new ChestTransferForm(Board.Current_player.Inventory, entity.Entity_id);
                         transferWindow.Show();
                     }

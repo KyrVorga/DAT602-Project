@@ -39,6 +39,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(300, 506);
             this.Text = "ChestTransferForm";
+
+            Controls.Add(chest_inventory_board);
+            Load += ChestTransferForm_Load;
         }
 
         #endregion
