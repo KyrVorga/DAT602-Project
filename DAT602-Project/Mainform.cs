@@ -17,51 +17,31 @@ namespace Battlespire
 {
     public partial class Mainform : Form
     {
-        private Login _login_form;
-        private SettingsAdmin _settings_admin;
-        private SettingsUser _settings_user;
-        private static String _username;
-        private static Game board;
+        private Login _loginForm;
+        private SettingsAdmin _settingsAdmin;
+        private SettingsUser _settingsUser;
+        private static Game _game;
 
-        public static string Username { get => _username; set => _username = value; }
-        public static Game Board { get => board; set => board = value; }
+        public static Game Game { get => _game; set => _game = value; }
+        public Login LoginForm { get => _loginForm; set => _loginForm = value; }
+        public SettingsAdmin SettingsAdmin { get => _settingsAdmin; set => _settingsAdmin = value; }
+        public SettingsUser SettingsUser { get => _settingsUser; set => _settingsUser = value; }
 
-        public Mainform(Login login, String username)
+        public Mainform(Login login, string username)
         {
             InitializeComponent();
-            _login_form = login;
-            Username = username;
+            LoginForm = login;
 
-            Board = new Game(this);
+            Game = new Game(this, username);
 
-            Board.GenerateBoard();
         }
         private void UpdateChat()
         {
-            GameDAO db_connection = new();
-            UpdateListbox(chat_box, db_connection.GetChat());
+            UpdateListbox(chat_box, Game.DbConnection.GetChat());
         }
         private void UpdateLeaderboard()
         {
-            GameDAO db_connection = new();
-            UpdateListbox(leaderboard_box, db_connection.GetLeaderboard());
-        }
-
-        private void LoadEntities()
-        {
-            GameDAO db_connection = new();
-
-            Game.Entitiy_list = db_connection.LoadEntities(Game.Current_player.Entity_id);
-
-        }
-        private void update_chat_button_Click(object sender, EventArgs e)
-        {
-            UpdateChat();
-        }
-
-        private void update_leaderboard_button_Click(object sender, EventArgs e)
-        {
-            UpdateLeaderboard();
+            UpdateListbox(leaderboard_box, Game.DbConnection.GetLeaderboard());
         }
 
         private void UpdateListbox(ListBox listbox, List<String> list)
@@ -73,28 +53,10 @@ namespace Battlespire
                 listbox.Items.Add(item);
             });
         }
-        private void MoveNPCMonsters()
-        {
-
-            GameDAO db_connection = new();
-
-            var query = from entity in Game.Entitiy_list
-                        select new { entity.Entity_id, entity.Entity_type };
-
-            foreach (var entity in query)
-            {
-                if (entity.Entity_type == "monster")
-                {
-                    db_connection.MoveMonster(entity.Entity_id);
-                }
-            }
-        }
-
 
         private void settings_button_Click(object sender, EventArgs e)
         {
-            GameDAO db_connection = new();
-            Boolean admin_result = db_connection.checkIsAdmin(Username);
+            Boolean admin_result = Game.DbConnection.checkIsAdmin(Game.PlayerName);
             if (admin_result)
             {
                 this.Hide();
@@ -111,15 +73,14 @@ namespace Battlespire
 
         private void inventory_icon_Click(object sender, EventArgs e)
         {
-            Inventory inventory = new Inventory(Game.Current_player.Entity_id);
-            InventoryForm inventoryForm = inventory.InventoryForm;
-            inventoryForm.Show();
+            Game.CurrentPlayer.Inventory = new(Game.CurrentPlayer.EntityId, Game.CurrentPlayer);
+            Game.CurrentPlayer.Inventory.InventoryForm.Show();
         }
 
         private void update_timer_Tick(object sender, EventArgs e)
         {
-            Board.UpdateBoard();
-            LoadEntities();
+            Game.UpdateGameBoard(Game.Mainform.board_panel, Game.Tiles, Game.Entities);
+            Game.Entities = Game.GetEntities();
         }
 
         private void chat_refresh_Tick(object sender, EventArgs e)
@@ -141,7 +102,12 @@ namespace Battlespire
 
         private void MonsterMove_Tick(object sender, EventArgs e)
         {
-            MoveNPCMonsters();
+            Game.MoveNPCMonsters();
+        }
+
+        private void Mainform_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            LoginForm.Close();
         }
     }
 }

@@ -34,8 +34,6 @@
             chat_box = new ListBox();
             label_chat = new Label();
             chat_input = new TextBox();
-            update_chat_button = new Button();
-            update_leaderboard_button = new Button();
             settings_button = new Button();
             board_panel = new Panel();
             inventory_icon = new PictureBox();
@@ -97,28 +95,6 @@
             chat_input.Size = new Size(178, 23);
             chat_input.TabIndex = 4;
             // 
-            // update_chat_button
-            // 
-            update_chat_button.Location = new Point(99, 263);
-            update_chat_button.Margin = new Padding(2);
-            update_chat_button.Name = "update_chat_button";
-            update_chat_button.Size = new Size(90, 25);
-            update_chat_button.TabIndex = 5;
-            update_chat_button.Text = "Update";
-            update_chat_button.UseVisualStyleBackColor = true;
-            update_chat_button.Click += update_chat_button_Click;
-            // 
-            // update_leaderboard_button
-            // 
-            update_leaderboard_button.Location = new Point(99, 30);
-            update_leaderboard_button.Margin = new Padding(2);
-            update_leaderboard_button.Name = "update_leaderboard_button";
-            update_leaderboard_button.Size = new Size(90, 26);
-            update_leaderboard_button.TabIndex = 6;
-            update_leaderboard_button.Text = "Update";
-            update_leaderboard_button.UseVisualStyleBackColor = true;
-            update_leaderboard_button.Click += update_leaderboard_button_Click;
-            // 
             // settings_button
             // 
             settings_button.Location = new Point(779, 12);
@@ -149,28 +125,24 @@
             // 
             // board_refresh
             // 
-            board_refresh.Enabled = true;
             board_refresh.Tick += update_timer_Tick;
             // 
             // chat_refresh
             // 
-            chat_refresh.Enabled = true;
             chat_refresh.Interval = 1000;
             chat_refresh.Tick += chat_refresh_Tick;
             // 
             // leaderboard_refresh
             // 
-            leaderboard_refresh.Enabled = true;
             leaderboard_refresh.Interval = 10000;
             leaderboard_refresh.Tick += leaderboard_refresh_Tick;
             // 
             // MonsterMove
             // 
-            MonsterMove.Enabled = true;
             MonsterMove.Interval = 1500;
             MonsterMove.Tick += MonsterMove_Tick;
             // 
-            // Game
+            // Mainform
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
@@ -178,16 +150,15 @@
             Controls.Add(inventory_icon);
             Controls.Add(board_panel);
             Controls.Add(settings_button);
-            Controls.Add(update_leaderboard_button);
-            Controls.Add(update_chat_button);
             Controls.Add(chat_input);
             Controls.Add(label_chat);
             Controls.Add(chat_box);
             Controls.Add(label_leaderboard);
             Controls.Add(leaderboard_box);
             Margin = new Padding(2);
-            Name = "Game";
+            Name = "Mainform";
             Text = "Game";
+            FormClosing += Mainform_FormClosing;
             Load += Game_Load;
             ((System.ComponentModel.ISupportInitialize)inventory_icon).EndInit();
             ResumeLayout(false);
@@ -201,8 +172,6 @@
         private ListBox chat_box;
         private Label label_chat;
         private TextBox chat_input;
-        private Button update_chat_button;
-        private Button update_leaderboard_button;
         private Button settings_button;
         public Panel board_panel;
         private PictureBox inventory_icon;

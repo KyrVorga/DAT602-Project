@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,134 +21,279 @@ namespace Battlespire
         private static List<Entity> _entities = new();
         private static List<Tile> _tiles = new();
         private static GameDAO _dbConnection;
-        public Game(Mainform mainform)
+        private static Tile? _initialTile;
+        private static Tile? _targetTile;
+        private static string _playerName;
+        public Game(Mainform mainform, string username)
         {
             Mainform = mainform;
 
             DbConnection = new();
-            Current_player = DbConnection.LoadPlayer(Mainform.Username);
+
+            CurrentPlayer = DbConnection.LoadPlayer(username);
             Tiles = GetTiles();
+            Entities = GetEntities();
+            GenerateBoard(Mainform.board_panel, Tiles, CurrentPlayer.EntityId, -5, -5, 5, 5);
+            UpdateGameBoard(Mainform.board_panel, Tiles, Entities);
         }
+
         public static Mainform Mainform { get => _mainform; set => _mainform = value; }
-        public static Player Current_player { get => _currentPlayer; set => _currentPlayer = value; }
+        public static Player CurrentPlayer { get => _currentPlayer; set => _currentPlayer = value; }
         public static List<Entity> Entities { get => _entities; set => _entities = value; }
         public static List<Tile> Tiles { get => _tiles; set => _tiles = value; }
         internal static GameDAO DbConnection { get => _dbConnection; set => _dbConnection = value; }
+        public static Tile? TargetTile { get => _targetTile; set => _targetTile = value; }
+        public static Tile? InitialTile { get => _initialTile; set => _initialTile = value; }
+        public static string PlayerName { get => _playerName; set => _playerName = value; }
 
-        //public void PlayerMove(int target_tile_id)
-        //{
-
-        //    var target_tile = Tile_list
-        //        .First(tile => tile.Id == target_tile_id);
-
-        //    var current_tile = Tile_list
-        //        .First(tile => tile.Id == Current_player.Tile_id);
-
-        //    if (current_tile != null && target_tile != null)
-        //    {
-        //        if (current_tile.X <= target_tile.X + 1 && current_tile.X >= target_tile.X - 1 && current_tile.Y <= target_tile.Y + 1 && current_tile.Y >= target_tile.Y - 1)
-        //        {
-        //            Current_player.Tile_id = target_tile.Id;
-
-        //            GameDAO db_connection = new();
-        //            db_connection.MovePlayer(target_tile.Id, Current_player.Entity_id);
-        //            Tile_list = GetTiles();
-        //            UpdateBoard();
-        //        }
-        //    }
-        //}
-
-        public List<Tile> GetTiles()
+        public static void GenerateBoard(Control panel, List<Tile> tiles, int ownerId, int xStart, int yStart, int xEnd, int yEnd)
         {
-            return DbConnection.GetTilesByPlayer(this, Current_player.Entity_id);
+            int tilesAccross = xEnd - xStart + 1;
+            int tilesVertical = yEnd - yStart + 1;
+            int tileBorder = 1 * tilesAccross;
+            int boardWidth = panel.Width;
+            int boardHeight = panel.Height;
+            int tileDimension = boardWidth / tilesAccross;
+            int tileWidth = boardWidth / tilesAccross;
+            int tileHeight = boardHeight / tilesVertical;
+
+            int index = 0;
+            for (int i = xStart; i <= xEnd; i++)
+            {
+                for (int j = yStart; j <= yEnd; j++)
+                {
+                    PictureBox pictureBox = new();
+                    pictureBox.BackColor = Color.Gray;
+                    pictureBox.Tag = ownerId;
+                    if (xStart < 0 && yStart < 0)
+                    {
+                        pictureBox.Width = tileWidth;
+                        pictureBox.Height = tileHeight;
+                        pictureBox.Location = new Point(boardWidth / 2 + i * (pictureBox.Width + 1), boardHeight / 2 + j * (pictureBox.Height + 1));
+                    }
+                    else
+                    {
+                        pictureBox.Width = tileDimension;
+                        pictureBox.Height = tileDimension;
+                        pictureBox.Location = new Point(i * (pictureBox.Height + 1), j * (pictureBox.Width + 1));
+                    }
+                    pictureBox.Click += tiles[index].Tile_Click;
+                    panel.Controls.Add(pictureBox);
+                    index++;
+                }
+            }
         }
-        public List<Entity> GetEntities()
+
+        public static List<Tile> GetTiles()
         {
-            return DbConnection.LoadEntities(Current_player.Entity_id);
+            return DbConnection.GetTilesByPlayer(CurrentPlayer.EntityId);
+        }
+        public static List<Entity> GetEntities()
+        {
+            return DbConnection.LoadEntities(CurrentPlayer.EntityId);
         }
 
-        //public void GenerateBoard()
-        //{
-        //    int tiles_accross = 11;
-        //    int tile_border = 1 * tiles_accross;
-        //    int board_width = Game.board_panel.Width - tile_border;
-        //    int board_height = Game.board_panel.Height - tile_border;
-        //    int tile_width = board_width / tiles_accross;
-        //    int tile_height = board_height / tiles_accross;
-        //    int ending_position = ((tiles_accross - 1) / 2);
-        //    int starting_position = ((tiles_accross - 1) / 2) * -1;
 
-        //    //Game.board_panel.Controls.Clear();
-        //    int index = 0;
-        //    for (int i = starting_position;  i <= ending_position; i++)
-        //    {
-        //        for (int j = starting_position; j <= ending_position; j++)
-        //        {
-        //            PictureBox pictureBox = new();
-        //            pictureBox.BackColor = Color.Gray;
-        //            pictureBox.Width = tile_width;
-        //            pictureBox.Height = tile_height;
-        //            pictureBox.Location = new Point(board_width / 2 + i * (pictureBox.Width + 1), board_height / 2 + j * (pictureBox.Height + 1));
-        //            pictureBox.Click += Tile_list[index].Tile_Click;
-        //            Game.board_panel.Controls.Add(pictureBox);
-        //            index++;
-        //        }
-        //    }
+        public static void MoveNPCMonsters()
+        {
 
 
-        //    UpdateBoard();
-        //}
+            var query = from entity in Entities
+                        select new { entity.EntityId, entity.EntityType };
+
+            foreach (var entity in query)
+            {
+                if (entity.EntityType == "monster")
+                {
+                    DbConnection.MoveMonster(entity.EntityId);
+                }
+            }
+        }
+
+        public static void MoveItem(Player player)
+        {
+            Console.WriteLine("MoveItem");
+            List<Tile> tiles = player.Inventory.Tiles;
+            List<Item> items = player.Inventory.Items;
+
+            // check if the tile has an item on it.
+            var query = from item in items
+                        join tile in tiles on item.TileId equals tile.Id
+                        where tile.Id == InitialTile.Id
+                        select new { item.EntityId };
 
 
-        //public void UpdateBoard()
-        //{
-
-        //    //Console.Write( Tile_list.Count);
-        //    for (int i = 0; i < Game.board_panel.Controls.Count; i++)
-        //    {
-        //        Tile tile = Tile_list[i];
-        //        Control box = Game.board_panel.Controls[i];
-
-        //        box.Name = tile.Id.ToString();
-        //        box.BackColor = Color.Gray;
-        //        // remove previous Tile_click event handler
-        //        //if (!tile.have_click)
-        //        //{
-        //        //    box.Click += tile.Tile_Click;
-        //        //    tile.have_click = true;
-        //        //}
-
-        //    }
+            var query1 = from item in items
+                         join tile in tiles on item.TileId equals tile.Id
+                         where tile.Id == TargetTile.Id
+                         select new { item.EntityId };
 
 
+            var zip = query.Zip(query1);
+            foreach (var pair in zip)
+            {
+                if (pair.First != null)
+                {
+                    DbConnection.MoveInventoryItem(pair.First.EntityId, InitialTile.Id, TargetTile.Id);
+                }
+                if (pair.Second != null)
+                {
+
+                    DbConnection.MoveInventoryItem(pair.Second.EntityId, TargetTile.Id, InitialTile.Id);
+                }
+            }
+            if (!query1.Any())
+            {
+
+                foreach (var item in query)
+                {
+                    if (item != null)
+                    {
+                        DbConnection.MoveInventoryItem(item.EntityId, InitialTile.Id, TargetTile.Id);
+                    }
+                }
+            }
+            
+
+            player.Inventory.GetItems();
+            TargetTile = null;
+            InitialTile = null;
+            player.Inventory.InventoryForm.UpdateBoard();
+        }
 
 
-        //    var query = from entity in entitiy_list
-        //                join tile in tile_list on entity.Tile_id equals tile.Id
-        //                select new { entity.Entity_id, entity.Tile_id, entity.Entity_type };
+        public static void MoveItem(Chest chest)
+        {
+            Console.WriteLine("MoveItem");
+            List<Tile> tiles = chest.Inventory.Tiles;
+            List<Item> items = chest.Inventory.Items;
 
-        //    foreach (var entity in query)
-        //    {
-        //        if (entity.Entity_id == current_player.Entity_id)
-        //        {
-        //            Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Purple;
-        //        }
-        //        else if (entity.Entity_type == "player")
-        //        {
-        //            Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Green;
-        //        }
-        //        else if (entity.Entity_type == "monster")
-        //        {
-        //            Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Red;
-        //        }
-        //        else if (entity.Entity_type == "chest")
-        //        {
-        //            Game.board_panel.Controls[entity.Tile_id.ToString()].BackColor = Color.Yellow;
-        //        }
-        //    }
 
-        //    Game.board_panel.Controls[current_player.Tile_id.ToString()].BackColor = Color.BlueViolet;
 
-        //}
+
+            // check if the tile has an item on it.
+            var query = from item in items
+                        join tile in tiles on item.TileId equals tile.Id
+                        where tile.Id == InitialTile.Id
+                        select new { item.EntityId };
+
+
+            var query1 = from item in items
+                         join tile in tiles on item.TileId equals tile.Id
+                         where tile.Id == TargetTile.Id
+                         select new { item.EntityId };
+
+
+
+            var zip = query.Zip(query1);
+            foreach (var pair in zip)
+            {
+                if (pair.First != null)
+                {
+                    DbConnection.MoveInventoryItem(pair.First.EntityId, InitialTile.Id, TargetTile.Id);
+                }
+                if (pair.Second != null)
+                {
+
+                    DbConnection.MoveInventoryItem(pair.Second.EntityId, TargetTile.Id, InitialTile.Id);
+                }
+            }
+            if (!query1.Any())
+            {
+
+                foreach (var item in query)
+                {
+                    if (item != null)
+                    {
+                        DbConnection.MoveInventoryItem(item.EntityId, InitialTile.Id, TargetTile.Id);
+                    }
+                }
+            }
+
+            chest.Inventory.GetItems();
+            TargetTile = null;
+            InitialTile = null;
+            chest.Inventory.ChestTransferForm.UpdateBoard();
+        }
+
+
+        public static void ClearBoard(Control panel, List<Tile> tiles)
+        {
+
+            for (int i = 0; i < panel.Controls.Count; i++)
+            {
+                Tile tile = tiles[i];
+                Control box = panel.Controls[i];
+
+                box.Name = tile.Id.ToString();
+                box.BackColor = Color.Gray;
+            }
+        }
+
+
+        public static void UpdateGameBoard(Control panel, List<Tile> tiles, List<Entity> entities)
+        {
+            Console.WriteLine("UpdateGameBoard");
+            ClearBoard(panel, tiles);
+            var query = from entity in entities
+                        join tile in tiles on entity.TileId equals tile.Id
+                        select new { entity.EntityId, entity.TileId, entity.EntityType };
+
+            foreach (var entity in query)
+            {
+                if (entity.EntityId == CurrentPlayer.EntityId)
+                {
+                    panel.Controls[entity.TileId.ToString()].BackColor = Color.Purple;
+                }
+                else if (entity.EntityType == "player")
+                {
+                    panel.Controls[entity.TileId.ToString()].BackColor = Color.Green;
+                }
+                else if (entity.EntityType == "monster")
+                {
+                    panel.Controls[entity.TileId.ToString()].BackColor = Color.Red;
+                }
+                else if (entity.EntityType == "chest")
+                {
+                    panel.Controls[entity.TileId.ToString()].BackColor = Color.Yellow;
+                }
+            }
+
+            panel.Controls[CurrentPlayer.TileId.ToString()].BackColor = Color.BlueViolet;
+        }
+
+        // is being passed old tiles and items
+        public static void UpdateInventoryBoard(Control panel, List<Tile> tiles, List<Item> items)
+        {
+            Console.WriteLine("UpdateInventoryBoard");
+            ClearBoard(panel, tiles);
+            var query = from item in items
+                        join tile in tiles on item.TileId equals tile.Id
+                        select new { item.EntityId, item.TileId, item.Name, item.IsEquipped };
+
+            foreach (var item in query)
+            {
+                if (item.Name.StartsWith("Amulet"))
+                {
+                    panel.Controls[item.TileId.ToString()].BackColor = Color.Green;
+                }
+                else if (item.Name.StartsWith("Sword"))
+                {
+                    panel.Controls[item.TileId.ToString()].BackColor = Color.Orange;
+                }
+                else if (item.Name.StartsWith("Armour"))
+                {
+                    panel.Controls[item.TileId.ToString()].BackColor = Color.Red;
+                }
+                else if (item.Name.StartsWith("Shield"))
+                {
+                    panel.Controls[item.TileId.ToString()].BackColor = Color.Blue;
+                }
+                if (item.IsEquipped == true)
+                {
+                    panel.Controls[item.TileId.ToString()].BackColor = Color.Pink;
+                }
+            }
+        }
     }
 }

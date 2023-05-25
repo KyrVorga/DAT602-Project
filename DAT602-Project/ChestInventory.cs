@@ -8,15 +8,22 @@ namespace Battlespire
 {
     internal class ChestInventory : Inventory
     {
-        public ChestInventory(int entity_id) : base(entity_id)
+        private Chest _chest;
+        private ChestTransferForm _chestTransferForm;
+        public ChestInventory(int entity_id, Chest chest) : base(entity_id)
         {
+            Tiles = GetTiles();
 
-            InventoryForm = new ChestTransferForm(this, entity_id);
+            Chest = chest;
+            ChestTransferForm = new ChestTransferForm(Chest);
         }
-        public override void MoveItem()
+
+        public Chest Chest { get => _chest; set => _chest = value; }
+        public ChestTransferForm ChestTransferForm { get => _chestTransferForm; set => _chestTransferForm = value; }
+
+        public List<Tile> GetTiles()
         {
-            base.MoveItem();
-            InventoryForm.UpdateChestBoard();
+            return Game.DbConnection.GetChestInventoryTiles(OwnerId);
         }
     }
 }

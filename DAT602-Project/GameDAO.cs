@@ -62,7 +62,7 @@ namespace Battlespire
             else return false;
         }
 
-        public List<Tile> GetTilesByPlayer(Game board, int player_id)
+        public List<Tile> GetTilesByPlayer(int player_id)
         {
             /*
                     new MySqlParameter() {
@@ -95,7 +95,7 @@ namespace Battlespire
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
                 
-                var newTile = new BoardTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], board);
+                var newTile = new BoardTile((int)row[0], (int)row[1], (int)row[2], (string)row[3]);
                 tile_list.Add(newTile);
             }
 
@@ -201,23 +201,47 @@ namespace Battlespire
             return item_list;
         }
 
-        public List<InventoryTile> GetEntityInventoryTiles(int entity_id)
+        public List<Tile> GetPlayerInventoryTiles(int playerId)
         {
 
             List<MySqlParameter> procedure_params = new List<MySqlParameter>();
             MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
             {
-                Value = entity_id
+                Value = playerId
             };
             procedure_params.Add(_entity_id);
             DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetEntityInventoryTiles(@entity_id)", procedure_params.ToArray());
 
-            var tile_list = new List<InventoryTile>();
+            var tile_list = new List<Tile>();
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
                 if (row != null)
                 {
-                    var newTile = new InventoryTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], inventory);
+                    var newTile = new PlayerInventoryTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], (int)row[4]);
+                    tile_list.Add(newTile);
+                }
+            }
+
+            return tile_list;
+        }
+
+        public List<Tile> GetChestInventoryTiles(int chestId)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
+            {
+                Value = chestId
+            };
+            procedure_params.Add(_entity_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetEntityInventoryTiles(@entity_id)", procedure_params.ToArray());
+
+            var tile_list = new List<Tile>();
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+                if (row != null)
+                {
+                    var newTile = new ChestInventoryTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], (int)row[4]);
                     tile_list.Add(newTile);
                 }
             }

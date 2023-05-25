@@ -8,52 +8,60 @@ namespace Battlespire
 {
     internal class BoardTile : Tile
     {
-        private Game _board;
-        public BoardTile(int id, int x, int y, string tile_type, Game board) : base(id, x, y, tile_type)
+        public BoardTile(int id, int x, int y, string tileType) : base(id, x, y, tileType)
         {
-            Board = board;
+            
         }
 
-        public Game Board { get => _board; set => _board = value; }
 
         public override void Tile_Click(object sender, EventArgs e)
         {
             PictureBox pictureBox = (PictureBox)sender;
 
             //Console.WriteLine(this.ToString());
-            int tile_id = Int32.Parse(pictureBox.Name);
+            int tileId = Int32.Parse(pictureBox.Name);
 
-            var query = from entity in Game.Entitiy_list
-                        join tile in Game.Tile_list on entity.Tile_id equals tile.Id
-                        where entity.Tile_id == tile_id
-                        select new { entity.Entity_id, entity.Tile_id, entity.Entity_type };
+            var query = from entity in Game.Entities
+                        join tile in Game.Tiles on entity.TileId equals tile.Id
+                        where entity.TileId == tileId
+                        select new { entity.EntityId, entity.TileId, entity.EntityType };
 
-            if (query.Count() > 0 )
+            if (query.Count() > 0)
             {
                 foreach (var entity in query)
                 {
-                    if (entity.Entity_type == "player")
+                    if (entity.EntityType == "player")
                     {
                         // player click function
                     }
-                    else if (entity.Entity_type == "monster")
+                    else if (entity.EntityType == "monster")
                     {
                         // monster click function
                     }
-                    else if (entity.Entity_type == "chest")
+                    else if (entity.EntityType == "chest")
                     {
                         // chest click function
                         //Inventory inventory = Board.Current_player.Inventory;
                         //InventoryForm inventoryForm = inventory.InventoryForm;
                         //inventoryForm.Show();
-                        
-                        ChestTransferForm transferWindow = new ChestTransferForm(Game.Current_player.Inventory, entity.Entity_id);
-                        transferWindow.Show();
+
+                        int chestId = entity.EntityId;
+
+                        foreach (var gameEntity in query)
+                        {
+                            Chest chest = (Chest)Game.Entities.Single(gameEntity => gameEntity.EntityId == chestId);
+                            if (chest != null)
+                            {
+                                ChestTransferForm transferWindow = new ChestTransferForm(chest);
+                                transferWindow.Show();
+                            }
+                        }
                     }
                 }
-            } else
+            }
+            else
             {
-                Board.PlayerMove(tile_id);
+                Game.CurrentPlayer.PlayerMove(tileId);
             }
         }
     }

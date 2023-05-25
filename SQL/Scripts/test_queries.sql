@@ -16,10 +16,11 @@ call GetTilesByPlayer(82, 10, 10);
 update entity set tile_id = 3442 where entity_id = 89;
 update entity set attack = 10 where entity_id = 93;
 
+call GetEntityInventoryTiles(1)
 
 select * from entity where entity_type = "player" and account_id = 11;
 
-	call CreateItem(88);
+	call CreateItem(86);
 
 call GetEntityInventory(88)
 
