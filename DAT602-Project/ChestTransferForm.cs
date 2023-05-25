@@ -16,7 +16,7 @@ namespace Battlespire
         private Chest _chest;
 
         public Chest Chest { get => _chest; set => _chest = value; }
-        public Panel Board { get => inventory_board;}
+        public Panel Board { get => inventory_board; }
         public ChestTransferForm(Chest chest)
         {
             InitializeComponent();
@@ -45,6 +45,14 @@ namespace Battlespire
                 GenerateBoard(Chest.Inventory.Tiles, Chest.EntityId, 0, 0, 8, 4);
                 UpdateBoard();
             }
+        }
+
+        private void take_button_Click(object sender, EventArgs e)
+        {
+
+            Item item = (Item)Chest.Inventory.Items.Single(item => item.TileId == Game.InitialTile.Id);
+            Game.TransferItem(item);
+            UpdateBoard();
         }
     }
 }

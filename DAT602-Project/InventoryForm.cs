@@ -58,12 +58,11 @@ namespace Battlespire
 
         private void equip_button_Click(object sender, EventArgs e)
         {
-            //Inventory.EquipItem(Initial_tile);
-            //Initial_tile = null;
-            //Player player = Game.Current_player;
-            //player.CalculateStats();
-            //UpdateStats();
-            //UpdateBoard();
+            Player.Inventory.EquipItem(Game.InitialTile);
+            Game.InitialTile = null;
+            Player.CalculateStats();
+            Player.UpdateStats();
+            UpdateBoard();
         }
 
         private void InventoryForm_Load(object sender, EventArgs e)

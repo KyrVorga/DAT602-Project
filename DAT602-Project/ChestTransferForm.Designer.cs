@@ -30,6 +30,7 @@
         {
             inventory_board = new Panel();
             inventory_label = new Label();
+            take_button = new Button();
             SuspendLayout();
             // 
             // inventory_board
@@ -48,11 +49,22 @@
             inventory_label.TabIndex = 7;
             inventory_label.Text = "Inventory";
             // 
+            // take_button
+            // 
+            take_button.Location = new Point(197, 18);
+            take_button.Name = "take_button";
+            take_button.Size = new Size(75, 23);
+            take_button.TabIndex = 8;
+            take_button.Text = "Take";
+            take_button.UseVisualStyleBackColor = true;
+            take_button.Click += take_button_Click;
+            // 
             // ChestTransferForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(286, 186);
+            Controls.Add(take_button);
             Controls.Add(inventory_label);
             Controls.Add(inventory_board);
             Name = "ChestTransferForm";
@@ -66,5 +78,6 @@
 
         private Panel inventory_board;
         private Label inventory_label;
+        private Button take_button;
     }
 }

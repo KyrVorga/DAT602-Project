@@ -6,9 +6,10 @@ select * from entity;
 
 select * from entity where entity_type = "player";
 select * from entity where entity_type = "monster";
-select * from entity where entity_type = "item" and owner_id = 90;
+select * from entity where entity_type = "item" and owner_id = 1;
 select * from entity where entity_type = "chest";
 
+select * from entity where entity_id = 89;
 
 call MoveMonsterNPC(80);
 
@@ -21,6 +22,17 @@ call GetEntityInventoryTiles(1)
 select * from entity where entity_type = "player" and account_id = 11;
 
 	call CreateItem(86);
+
+
+
+	select t.tile_id, e.entity_id 
+	from tile t
+		join entity e 
+			on t.owner_id = e.entity_id 
+		where e.entity_id = 86
+			and t.tile_id in (select t2.tile_id from tile t2 where t2.owner_id = 86);
+
+
 
 call GetEntityInventory(88)
 
@@ -50,7 +62,7 @@ show function status;
 show procedure status;
 call CreatePlayer(1) 
 
-
+select * from entity e where e.entity_id = 54
 
 
 call GetPlayerByAccUsername("asdf");

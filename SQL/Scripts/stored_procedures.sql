@@ -837,7 +837,40 @@ begin
 end //
 delimiter ; 
 
+drop procedure if exists TransferItem;
+delimiter //
+create procedure TransferItem(in _item_id int, in _player_id int)
+begin
+	
+	-- transfer this code to a function and use in the item spawning
+	declare new_tile int;
+	select t.tile_id 
+		into new_tile
+	from tile t 
+		where t.owner_id = _player_id 
+		and t.tile_id not in (
+			select t2.tile_id
+			from tile t2
+				join entity e 
+					on t2.owner_id = e.entity_id 
+				join entity e2 
+					on e2.tile_id = t2.tile_id 
+				where e.entity_id = _player_id
+			)
+		order by rand()
+		limit 1;
 
+	set autocommit = off;
+	start transaction;
+
+		update entity 
+		set tile_id = new_tile, owner_id = _player_id
+		where entity_id = _item_id;
+
+	commit;
+
+end //
+delimiter ; 
 -- Below is used for the Create Database Task
 
 call CreateDatabase();

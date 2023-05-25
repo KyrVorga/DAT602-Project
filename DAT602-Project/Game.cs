@@ -214,7 +214,12 @@ namespace Battlespire
             chest.Inventory.ChestTransferForm.UpdateBoard();
         }
 
+        public static void TransferItem(Item item)
+        {
+            DbConnection.TransferItem(item.EntityId, CurrentPlayer.EntityId);
+            InitialTile = null;
 
+        }
         //public static void MoveItem(Chest chest)
         //{
         //    Console.WriteLine("MoveItem");
