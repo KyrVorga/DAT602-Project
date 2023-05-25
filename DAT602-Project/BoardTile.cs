@@ -50,10 +50,12 @@ namespace Battlespire
                         foreach (var gameEntity in query)
                         {
                             Chest chest = (Chest)Game.Entities.Single(gameEntity => gameEntity.EntityId == chestId);
+                            Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
                             if (chest != null)
                             {
-                                ChestTransferForm transferWindow = new ChestTransferForm(chest);
-                                transferWindow.Show();
+                                chest.Inventory.ChestTransferForm = new ChestTransferForm(chest);
+                                Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
+                                chest.Inventory.ChestTransferForm.Show();
                             }
                         }
                     }

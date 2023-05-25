@@ -164,6 +164,7 @@ namespace Battlespire
         public static void MoveItem(Chest chest)
         {
             Console.WriteLine("MoveItem");
+            Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
             List<Tile> tiles = chest.Inventory.Tiles;
             List<Item> items = chest.Inventory.Items;
 
@@ -209,6 +210,7 @@ namespace Battlespire
             chest.Inventory.GetItems();
             TargetTile = null;
             InitialTile = null;
+            Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
             chest.Inventory.ChestTransferForm.UpdateBoard();
         }
 
