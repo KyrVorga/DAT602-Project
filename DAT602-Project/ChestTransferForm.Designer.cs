@@ -28,16 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            chest_inventory_board = new Panel();
+            inventory_board = new Panel();
             inventory_label = new Label();
             SuspendLayout();
             // 
-            // chest_inventory_board
+            // inventory_board
             // 
-            chest_inventory_board.Location = new Point(12, 44);
-            chest_inventory_board.Name = "chest_inventory_board";
-            chest_inventory_board.Size = new Size(260, 130);
-            chest_inventory_board.TabIndex = 0;
+            inventory_board.Location = new Point(12, 44);
+            inventory_board.Name = "inventory_board";
+            inventory_board.Size = new Size(260, 130);
+            inventory_board.TabIndex = 0;
             // 
             // inventory_label
             // 
@@ -54,7 +54,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(286, 186);
             Controls.Add(inventory_label);
-            Controls.Add(chest_inventory_board);
+            Controls.Add(inventory_board);
             Name = "ChestTransferForm";
             Text = "ChestTransferForm";
             Load += ChestTransferForm_Load;
@@ -64,7 +64,7 @@
 
         #endregion
 
-        private Panel chest_inventory_board;
+        private Panel inventory_board;
         private Label inventory_label;
     }
 }

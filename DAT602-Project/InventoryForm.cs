@@ -16,7 +16,7 @@ namespace Battlespire
         private Player _player;
 
         public Player Player { get => _player; set => _player = value; }
-
+        public Panel Board { get => inventory_board; }
         public InventoryForm(Player player)
         {
             InitializeComponent();
@@ -28,7 +28,7 @@ namespace Battlespire
             Player.Inventory.Items = Player.Inventory.GetItems();
             Player.Inventory.Tiles = Player.Inventory.GetTiles();
 
-            Game.UpdateInventoryBoard(inventory_board, Player.Inventory.Tiles, Player.Inventory.Items);
+            Game.UpdateInventoryBoard(Board, Player.Inventory.Tiles, Player.Inventory.Items);
         }
 
         public void GenerateBoard(List<Tile> tiles, int playerId, int xStart, int yStart, int xEnd, int yEnd)

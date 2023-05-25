@@ -161,15 +161,11 @@ namespace Battlespire
             player.Inventory.InventoryForm.UpdateBoard();
         }
 
-
         public static void MoveItem(Chest chest)
         {
             Console.WriteLine("MoveItem");
             List<Tile> tiles = chest.Inventory.Tiles;
             List<Item> items = chest.Inventory.Items;
-
-
-
 
             // check if the tile has an item on it.
             var query = from item in items
@@ -182,7 +178,6 @@ namespace Battlespire
                          join tile in tiles on item.TileId equals tile.Id
                          where tile.Id == TargetTile.Id
                          select new { item.EntityId };
-
 
 
             var zip = query.Zip(query1);
@@ -210,11 +205,67 @@ namespace Battlespire
                 }
             }
 
+
             chest.Inventory.GetItems();
             TargetTile = null;
             InitialTile = null;
             chest.Inventory.ChestTransferForm.UpdateBoard();
         }
+
+
+        //public static void MoveItem(Chest chest)
+        //{
+        //    Console.WriteLine("MoveItem");
+        //    List<Tile> tiles = chest.Inventory.Tiles;
+        //    List<Item> items = chest.Inventory.Items;
+
+
+
+
+        //    // check if the tile has an item on it.
+        //    var query = from item in items
+        //                join tile in tiles on item.TileId equals tile.Id
+        //                where tile.Id == InitialTile.Id
+        //                select new { item.EntityId };
+
+
+        //    var query1 = from item in items
+        //                 join tile in tiles on item.TileId equals tile.Id
+        //                 where tile.Id == TargetTile.Id
+        //                 select new { item.EntityId };
+
+
+
+        //    var zip = query.Zip(query1);
+        //    foreach (var pair in zip)
+        //    {
+        //        if (pair.First != null)
+        //        {
+        //            DbConnection.MoveInventoryItem(pair.First.EntityId, InitialTile.Id, TargetTile.Id);
+        //        }
+        //        if (pair.Second != null)
+        //        {
+
+        //            DbConnection.MoveInventoryItem(pair.Second.EntityId, TargetTile.Id, InitialTile.Id);
+        //        }
+        //    }
+        //    if (!query1.Any())
+        //    {
+
+        //        foreach (var item in query)
+        //        {
+        //            if (item != null)
+        //            {
+        //                DbConnection.MoveInventoryItem(item.EntityId, InitialTile.Id, TargetTile.Id);
+        //            }
+        //        }
+        //    }
+
+        //    chest.Inventory.GetItems();
+        //    TargetTile = null;
+        //    InitialTile = null;
+        //    chest.Inventory.ChestTransferForm.UpdateBoard();
+        //}
 
 
         public static void ClearBoard(Control panel, List<Tile> tiles)
