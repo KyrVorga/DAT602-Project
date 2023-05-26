@@ -10,15 +10,15 @@ namespace Battlespire
     {
         private string _name;
         private int _health;
-        private int _currentHealth;
+        private int _damageTaken;
         private int _attack;
         private int _defense;
         private int _healing;
-        public Monster(int entityId, string name, int health, int currentHealth, int attack, int defense, int healing, string entityType, int tileId) : base(entityId, entityType, tileId)
+        public Monster(int entityId, string name, int health, int damageTaken, int attack, int defense, int healing, string entityType, int tileId) : base(entityId, entityType, tileId)
         {
             Name = name;
             Health = health;
-            CurrentHealth = currentHealth;
+            DamageTaken = damageTaken;
             Attack = attack;
             Defense = defense;
             Healing = healing;
@@ -26,7 +26,7 @@ namespace Battlespire
 
         public string Name { get => _name; set => _name = value; }
         public int Health { get => _health; set => _health = value; }
-        public int CurrentHealth { get => _currentHealth; set => _currentHealth = value; }
+        public int DamageTaken { get => _damageTaken; set => _damageTaken = value; }
         public int Attack { get => _attack; set => _attack = value; }
         public int Defense { get => _defense; set => _defense = value; }
         public int Healing { get => _healing; set => _healing = value; }

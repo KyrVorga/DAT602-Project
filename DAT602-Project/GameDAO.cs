@@ -118,13 +118,13 @@ namespace Battlespire
                 if ((string)row["entity_type"] == "player")
                 {
                     //convert to named arguments 
-                    Entity newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
+                    Entity newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["damage_taken"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
                     entity_list.Add(newEntity);
                 }
                 else if ((string)row["entity_type"] == "monster")
                 {
                     //convert to named arguments 
-                    Entity newEntity = new Monster((int)row["entity_id"], (string)row["name"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (string)row["entity_type"], (int)row["tile_id"]);
+                    Entity newEntity = new Monster((int)row["entity_id"], (string)row["name"], (int)row["health"], (int)row["damage_taken"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (string)row["entity_type"], (int)row["tile_id"]);
                     entity_list.Add(newEntity);
                 }
                 else if ((string)row["entity_type"] == "chest")
@@ -153,7 +153,7 @@ namespace Battlespire
 
             DataRow row = query_result.Tables[0].Rows[0];
             //convert to named arguments 
-            newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["current_health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
+            newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["damage_taken"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
 
             return newEntity;
         }
@@ -332,5 +332,67 @@ namespace Battlespire
             MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call TransferItem(@item_id, @player_id)", procedure_params.ToArray());
 
         }
+
+        public void DamageEntity(int pAttackerId, int pDefenderId)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter attackerId = new("@attacker_id", MySqlDbType.Int32)
+            {
+                Value = pAttackerId
+            };
+            MySqlParameter defenderId = new("@defender_id", MySqlDbType.Int32)
+            {
+                Value = pDefenderId
+            };
+
+            procedure_params.Add(attackerId);
+            procedure_params.Add(defenderId);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call DamageEntity(@attacker_id, @defender_id)", procedure_params.ToArray());
+
+        }
+
+        internal Dictionary<string, decimal> GetPlayerStats(int entityId)
+        {
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter entity_id = new("@entity_id", MySqlDbType.Int32)
+            {
+                Value = entityId
+            };
+            procedure_params.Add(entity_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetPlayerStats(@entity_id)", procedure_params.ToArray());
+
+            Dictionary<string, decimal> newStats = new();
+
+
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+                if (row != null)
+                {
+                    Console.WriteLine(row[0].GetType);
+                    newStats.Add("Health", (decimal)row[0]);
+                    newStats.Add("Attack", (decimal)row[1]);
+                    newStats.Add("Defense", (decimal)row[2]);
+                    newStats.Add("Healing", (decimal)row[3]);
+                    newStats.Add("DamageTaken", (decimal)row[4]);
+                }
+            }
+
+            return newStats;
+        }
+
+
+        //public void CalculateHealth(int entity_id)
+        //{
+        //    List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+        //    MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
+        //    {
+        //        Value = entity_id
+        //    };
+        //    procedure_params.Add(_entity_id);
+        //    DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call CalculateHealth(@entity_id)", procedure_params.ToArray());
+        //}
     }
 }

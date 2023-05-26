@@ -37,19 +37,23 @@ namespace Battlespire
             Game.GenerateBoard(inventory_board, tiles, playerId, xStart, yStart, xEnd, yEnd);
         }
 
-        public void UpdateHealthLabel(int value)
+        public void UpdateHealthLabel(decimal value)
         {
             player_health_label.Text = string.Format("Health: {0}", value);
         }
-        public void UpdateAttackLabel(int value)
+        public void UpdateCurrentHealthLabel(decimal value)
+        {
+            player_current_health_label.Text = string.Format("Current Health: {0}", value);
+        }
+        public void UpdateAttackLabel(decimal value)
         {
             player_attack_label.Text = string.Format("Attack: {0}", value);
         }
-        public void UpdateDefenseLabel(int value)
+        public void UpdateDefenseLabel(decimal value)
         {
             player_defense_label.Text = string.Format("Defense: {0}", value);
         }
-        public void UpdateHealingLabel(int value)
+        public void UpdateHealingLabel(decimal value)
         {
             player_healing_label.Text = string.Format("Healing: {0}", value);
         }

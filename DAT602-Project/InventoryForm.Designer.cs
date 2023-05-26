@@ -39,6 +39,7 @@
             player_name_label = new Label();
             equipment_panel = new Panel();
             equip_button = new Button();
+            player_current_health_label = new Label();
             SuspendLayout();
             // 
             // inventory_board
@@ -138,11 +139,21 @@
             equip_button.UseVisualStyleBackColor = true;
             equip_button.Click += equip_button_Click;
             // 
+            // player_current_health_label
+            // 
+            player_current_health_label.AutoSize = true;
+            player_current_health_label.Location = new Point(150, 138);
+            player_current_health_label.Name = "player_current_health_label";
+            player_current_health_label.Size = new Size(88, 15);
+            player_current_health_label.TabIndex = 11;
+            player_current_health_label.Text = "Current Health:";
+            // 
             // InventoryForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(284, 361);
+            Controls.Add(player_current_health_label);
             Controls.Add(equip_button);
             Controls.Add(equipment_panel);
             Controls.Add(player_name_label);
@@ -174,5 +185,6 @@
         private Label player_name_label;
         private Panel equipment_panel;
         private Button equip_button;
+        private Label player_current_health_label;
     }
 }

@@ -158,24 +158,22 @@ begin
 			account_id,
 			entity_type,
 			health,
-			current_health,
+			damage_taken,
 			attack,
 			defense,
 			healing,
 			tile_id,
-			killscore,
-			inventory_used
+			killscore
 		)
 		values (
 			_account_id,
 			"player",
 			1,
-			1,
+			0,
 			1,
 			1,
 			1,
 			_home_tile,
-			0,
 			0
 		);
 
@@ -235,17 +233,17 @@ delimiter ;
 --   \___/| .__/\__,_\__,_|\__\___| |___|_||_\__|_|\__|\_, | |___|_||_\_/\___|_||_\__\___/_|  \_, |
 --        |_|                                          |__/                                   |__/ 
 -- 
-drop procedure if exists UpdateEntityInventory;
-delimiter //
-create procedure UpdateEntityInventory(in _entity_id int)
-begin	
-	
-	update entity
-	set inventory_used = (select count(entity_id) from (select * from entity) as e where owner_id = _entity_id)
-	where entity_id = _entity_id;
-	
-end //
-delimiter ;
+-- drop procedure if exists UpdateEntityInventory;
+-- delimiter //
+-- create procedure UpdateEntityInventory(in _entity_id int)
+-- begin	
+-- 	
+-- 	update entity
+-- 	set inventory_used = (select count(entity_id) from (select * from entity) as e where owner_id = _entity_id)
+-- 	where entity_id = _entity_id;
+-- 	
+-- end //
+-- delimiter ;
 
 -- THIS PROCEDURE IS INCOMPLETE!
 -- drop procedure if exists PlayerEquipItem;
@@ -388,7 +386,7 @@ begin
 		set _items_created = _items_created + 1;
 	end while;
 
-	call UpdateEntityInventory(_chest_id);
+	-- call UpdateEntityInventory(_chest_id);
 	
 	-- might need to return the entity_id into an out variable or as a select
 end //
@@ -437,7 +435,6 @@ begin
 	declare _attack int;
 	declare _defense int;
 	declare _healing int;
-	declare _current_health int;
 	
 	declare _type_mod int ;
 	declare _monster_type varchar(50) default "Goblin ";
@@ -456,7 +453,7 @@ begin
 	set _attack = pow(_distance, 1.25) / 5;
 	set _defense = pow(_distance, 1.25) / 5;
 	set _healing = pow(_distance, 1.25) / 10;
-	set _current_health = ceil((rand() * (1.3 - 0.7) + 0.7) * _health);
+	
 
 
 	if _type_mod = 1 then
@@ -480,11 +477,11 @@ begin
 	
 
 	-- create the new monster
-	insert into entity (name, health, current_health, attack, defense, healing, entity_type, tile_id)
+	insert into entity (name, health, damage_taken, attack, defense, healing, entity_type, tile_id)
 	values (
 		concat(_monster_type, _tier),
-		_current_health,
-		_current_health,
+		_health,
+		0,
 		ceil((rand() * (1.3 - 0.7) + 0.7) * _attack),
 		ceil((rand() * (1.3 - 0.7) + 0.7) * _defense),
 		ceil((rand() * (1.3 - 0.7) + 0.7) * _healing),
@@ -837,6 +834,9 @@ begin
 end //
 delimiter ; 
 
+
+
+
 drop procedure if exists TransferItem;
 delimiter //
 create procedure TransferItem(in _item_id int, in _player_id int)
@@ -869,6 +869,198 @@ begin
 
 	commit;
 
+end //
+delimiter ; 
+
+
+
+drop procedure if exists DamageEntity;
+delimiter //
+create procedure DamageEntity(in _attacker_id int, in _defender_id int)
+begin
+	
+	-- get effective health for both
+	-- get total attack for both
+	-- get total defense for both
+	-- for both entities
+		-- if defense - attack is positive
+		-- 		health - remainder
+		-- 		update health value to reflect damage dealt.
+	
+	declare defender_health int;
+	declare defender_defense int;
+	declare defender_attack int;
+	declare defender_damage_taken int;
+
+	declare attacker_health int;
+	declare attacker_defense int;
+	declare attacker_attack int;
+	declare attacker_damage_taken int;
+
+
+	select sum(health), sum(attack), sum(defense)
+		into defender_health, defender_attack, defender_defense
+	from entity e 
+		where e.entity_id = _defender_id
+		or (is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _defender_id
+				));
+			
+	
+	select sum(health), sum(attack), sum(defense)
+		into attacker_health, attacker_attack, attacker_defense
+	from entity e 
+		where e.entity_id =	_attacker_id
+		or (is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _attacker_id
+				));
+			
+			
+	
+	
+	
+	set autocommit = off;
+	start transaction;
+
+		if (attacker_attack > defender_defense / 2) then
+		
+			update entity 
+			set damage_taken = damage_taken + attacker_attack - (defender_defense /2)
+			where entity_id = _defender_id;
+			
+		end if;
+	
+		if (defender_attack > attacker_defense / 2) then
+		
+			update entity 
+			set damage_taken = damage_taken + defender_attack - (attacker_defense /2)
+			where entity_id = _attacker_id;
+			
+		end if;
+		
+		-- call CheckEnti
+	commit;
+	call CheckEntityStatus(_attacker_id);
+	call CheckEntityStatus(_defender_id);
+end //
+delimiter ; 
+
+
+
+drop procedure if exists GetPlayerStats;
+delimiter //
+create procedure GetPlayerStats(in _player_id int)
+begin
+	
+
+	select sum(health), sum(attack), sum(defense), sum(healing), sum(damage_taken)
+	from entity e 
+		where entity_id = _player_id or
+		(is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _player_id
+				));
+
+	call checkentitystatus(_player_id);
+end //
+delimiter ; 
+
+
+
+drop procedure if exists CheckEntityStatus;
+delimiter //
+create procedure CheckEntityStatus(in _entity_id int)
+begin
+	
+	declare entity_health int;
+	declare entity_damage int;
+
+
+	select sum(health), sum(damage_taken)
+		into entity_health, entity_damage
+	from entity e 
+		where entity_id = _entity_id or
+		(is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _entity_id
+				));
+	
+			
+	if entity_damage >= entity_health then
+		call KillEntity(_entity_id);
+	end if;
+			
+			
+end //
+delimiter ; 
+
+drop procedure if exists KillEntity;
+delimiter //
+create procedure KillEntity(in pEntityId int)
+begin
+	
+	declare _tileId int;
+	declare _entityType varchar(50);
+	declare _accountId int;
+
+
+
+	select entity_type, tile_id
+		into _entityType, _tileId
+	from entity
+		where entity_id = pEntityId;
+	
+	select _entityType, _tileId;
+	if (_entityType = "monster") then
+		set autocommit = off;
+		start transaction;
+			delete from entity where entity_id = pEntityId;
+		commit;	
+	
+		-- call spawnmonster(tile_id);
+	
+	elseif (_entityType = "player") then
+		select account_id
+			into _accountId
+		from entity 
+			where entity_id = pEntityId;
+			
+		set autocommit = off;
+		start transaction;
+			delete from entity where entity_id = pEntityId;
+		commit;	
+	
+		
+		call createplayer(_accountId);
+	end if;
+
+			
 end //
 delimiter ; 
 -- Below is used for the Create Database Task

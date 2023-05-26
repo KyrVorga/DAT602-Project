@@ -30,13 +30,10 @@ namespace Battlespire
             {
                 foreach (var entity in query)
                 {
-                    if (entity.EntityType == "player")
+                    if (entity.EntityType == "player" || entity.EntityType == "monster")
                     {
                         // player click function
-                    }
-                    else if (entity.EntityType == "monster")
-                    {
-                        // monster click function
+                        Game.DamageEntity(Game.CurrentPlayer.EntityId, entity.EntityId);
                     }
                     else if (entity.EntityType == "chest")
                     {

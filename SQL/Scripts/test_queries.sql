@@ -6,10 +6,15 @@ select * from entity;
 
 select * from entity where entity_type = "player";
 select * from entity where entity_type = "monster";
-select * from entity where entity_type = "item" and owner_id = 1;
+select * from entity where entity_type = "item" and owner_id = 88;
 select * from entity where entity_type = "chest";
 
 select * from entity where entity_id = 89;
+
+select entity_type, tile_id
+	from entity
+		where entity_id = 90;
+
 
 call MoveMonsterNPC(80);
 
@@ -19,22 +24,97 @@ update entity set attack = 10 where entity_id = 93;
 
 call GetEntityInventoryTiles(1)
 
+
+
+select sum(health), sum(damage_taken)
+	from entity e 
+		where entity_id = 93 or
+		(is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = 93
+				));
+			
+			
+			delete from entity where entity_id = 92
+call killentity(93) 
+
+call GetPlayerStats();
+
 select * from entity where entity_type = "player" and account_id = 11;
 
-	call CreateItem(86);
+call checkentitystatus(92) 
 
 
+	call CreateItem(88);
 
-	select t.tile_id, e.entity_id 
+select * from entity e where entity_id = 87
+
+update entity 
+set attack = attack + 2
+where entity_id = 90
+
+		select sum(health), sum(attack), sum(defense)
+	from entity e 
+		where e.entity_id =	78
+		or (is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = 78
+				));
+
+			
+	select sum(health), sum(attack), sum(defense), sum(defense), sum(damage_taken)
+	from entity e 
+		where entity_id = 94 or
+		(is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = 94
+				))
+			
+	select sum(health)
+	from entity e 
+		where entity_id = 93 or
+		(is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = 93
+				));
+
+select t2.tile_id from tile t2 where t2.owner_id = 86 and t2.tile_id not in (
+	select t.tile_id
 	from tile t
 		join entity e 
 			on t.owner_id = e.entity_id 
+		join entity e2 
+			on e2.tile_id = t.tile_id 
 		where e.entity_id = 86
-			and t.tile_id in (select t2.tile_id from tile t2 where t2.owner_id = 86);
+	)
 
 
 
-call GetEntityInventory(88)
+call GetEntityInventory(94)
 
 call GetEntityInventory(92)
 call EquipItem(93, 94)

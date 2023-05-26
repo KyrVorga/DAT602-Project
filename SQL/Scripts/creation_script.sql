@@ -66,7 +66,8 @@ begin
 		entity_id integer not null auto_increment,
 		name varchar(50),
 		health integer,
-		current_health integer,
+		-- current_health integer,
+		damage_taken integer,
 		attack integer,
 		defense integer,
 		healing integer,
@@ -75,7 +76,7 @@ begin
 		tile_id integer,
 		owner_id integer,
 		killscore integer,
-		inventory_used tinyint,
+		-- inventory_used tinyint,
 		is_equipped boolean,
 		constraint pk_entity primary key (entity_id),
 		constraint fk_entity_account foreign key (account_id)

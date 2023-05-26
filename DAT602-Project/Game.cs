@@ -353,5 +353,10 @@ namespace Battlespire
                 }
             }
         }
+
+        internal static void DamageEntity(int attackerId, int defenderId)
+        {
+            DbConnection.DamageEntity(attackerId, defenderId);
+        }
     }
 }

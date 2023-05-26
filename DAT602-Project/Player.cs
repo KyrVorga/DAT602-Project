@@ -10,7 +10,8 @@ namespace Battlespire
     public partial class Player : Entity
     {
         private int _health;
-        private int _current_health;
+        private int _maxHealth;
+        private int _damageTaken;
         private int _attack;
         private int _defense;
         private int _healing;
@@ -18,9 +19,9 @@ namespace Battlespire
         private int _killscore;
         private PlayerInventory _inventory;
 
-        public Player (int entityId, int health, int currentHealth, int attack, int defense, int healing, int accountId, string entityType, int tileId, int killscore) : base(entityId, entityType, tileId) {
+        public Player (int entityId, int health, int damageTaken, int attack, int defense, int healing, int accountId, string entityType, int tileId, int killscore) : base(entityId, entityType, tileId) {
             Health = health;
-            CurrentHealth = currentHealth;
+            DamageTaken = damageTaken;
             Attack = attack;
             Defense = defense;
             Healing = healing;
@@ -30,14 +31,14 @@ namespace Battlespire
         }
 
         public int Health { get => _health; set => _health = value; }
-        public int CurrentHealth { get => _current_health; set => _current_health = value; }
+        public int DamageTaken { get => _damageTaken; set => _damageTaken = value; }
         public int Attack { get => _attack; set => _attack = value; }
         public int Defense { get => _defense; set => _defense = value; }
         public int Healing { get => _healing; set => _healing = value; }
         public int AccountId { get => _accountId; set => _accountId = value; }
         public int Killscore { get => _killscore; set => _killscore = value; }
         internal PlayerInventory Inventory { get => _inventory; set => _inventory = value; }
-
+        public int MaxHealth { get => _maxHealth; set => _maxHealth = value; }
 
         public void PlayerMove(int target_tile_id)
         {
@@ -91,10 +92,16 @@ namespace Battlespire
         }
         public void UpdateStats()
         {
-            Inventory.InventoryForm.UpdateAttackLabel(Attack);
-            Inventory.InventoryForm.UpdateDefenseLabel(Defense);
-            Inventory.InventoryForm.UpdateHealingLabel(Healing);
-            Inventory.InventoryForm.UpdateHealthLabel(Health);
+            Dictionary<string, decimal> newStats = Game.DbConnection.GetPlayerStats(EntityId);
+            Inventory.InventoryForm.UpdateAttackLabel(newStats["Attack"]);
+            Inventory.InventoryForm.UpdateDefenseLabel(newStats["Defense"]);
+            Inventory.InventoryForm.UpdateHealingLabel(newStats["Healing"]);
+            Inventory.InventoryForm.UpdateHealthLabel(newStats["Health"]);
+            Inventory.InventoryForm.UpdateCurrentHealthLabel(newStats["Health"] - newStats["DamageTaken"]);
+            if (newStats["Health"] - newStats["DamageTaken"] <= 0)
+            {
+                Console.WriteLine("Dead");
+            }
         }
         public override string ToString()
         {
