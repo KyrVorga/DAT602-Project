@@ -64,41 +64,47 @@ namespace Battlespire
 
         public List<Tile> GetTilesByPlayer(int player_id)
         {
-            /*
-                    new MySqlParameter() {
+
+            List<Tile> tile_list = new();
+            try
+            {
+                List<MySqlParameter> procedure_params = new List<MySqlParameter>
+                {
+                    new()
+                    {
                         ParameterName = "@player_id",
-                        MySqlDbType =MySqlDbType.Int32,
-                        Value =player_id
-                        }
-            */
+                        MySqlDbType = MySqlDbType.Int32,
+                        Value = player_id
+                    },
+                    new()
+                    {
+                        ParameterName = "@viewport_width",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Value = 10
+                    },
+                    new()
+                    {
+                        ParameterName = "@viewport_height",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Value = 10
+                    }
 
-            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
-            MySqlParameter _player_id = new("@player_id", MySqlDbType.Int32)
-            {
-                Value = player_id
-            };
-            MySqlParameter _viewport_width = new("@viewport_width", MySqlDbType.Int32)
-            {
-                Value = 10
-            };
-            MySqlParameter _viewport_height = new("@viewport_height", MySqlDbType.Int32)
-            {
-                Value = 10
-            };
-            procedure_params.Add(_player_id);
-            procedure_params.Add(_viewport_width);
-            procedure_params.Add(_viewport_height);
+                };
 
-            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetTilesByPlayer(@player_id, @viewport_width, @viewport_height)", procedure_params.ToArray());
+                DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetTilesByPlayer(@player_id, @viewport_width, @viewport_height)", procedure_params.ToArray());
             
-            var tile_list = new List<Tile>();
-            foreach (DataRow row in query_result.Tables[0].Rows)
-            {
+                foreach (DataRow row in query_result.Tables[0].Rows)
+                {
                 
-                var newTile = new BoardTile((int)row[0], (int)row[1], (int)row[2], (string)row[3]);
-                tile_list.Add(newTile);
+                    var newTile = new BoardTile((int)row[0], (int)row[1], (int)row[2], (string)row[3]);
+                    tile_list.Add(newTile);
+                }
             }
-
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+              
             return tile_list;
         }
 

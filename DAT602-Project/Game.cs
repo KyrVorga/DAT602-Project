@@ -56,6 +56,8 @@ namespace Battlespire
             int tileDimension = boardWidth / tilesAccross;
             int tileWidth = boardWidth / tilesAccross;
             int tileHeight = boardHeight / tilesVertical;
+            panel.Controls.Clear();
+
 
             int index = 0;
             for (int i = xStart; i <= xEnd; i++)
@@ -357,6 +359,8 @@ namespace Battlespire
         internal static void DamageEntity(int attackerId, int defenderId)
         {
             DbConnection.DamageEntity(attackerId, defenderId);
+            Mainform.ReloadGame();
+            //CurrentPlayer = DbConnection.LoadPlayer(PlayerName);
         }
     }
 }

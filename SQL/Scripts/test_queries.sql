@@ -51,7 +51,7 @@ select * from entity where entity_type = "player" and account_id = 11;
 call checkentitystatus(92) 
 
 
-	call CreateItem(88);
+	call CreateItem(91);
 
 select * from entity e where entity_id = 87
 

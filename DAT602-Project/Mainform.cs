@@ -21,18 +21,21 @@ namespace Battlespire
         private SettingsAdmin _settingsAdmin;
         private SettingsUser _settingsUser;
         private static Game _game;
+        private string _username;
 
         public static Game Game { get => _game; set => _game = value; }
         public Login LoginForm { get => _loginForm; set => _loginForm = value; }
         public SettingsAdmin SettingsAdmin { get => _settingsAdmin; set => _settingsAdmin = value; }
         public SettingsUser SettingsUser { get => _settingsUser; set => _settingsUser = value; }
+        public string Username { get => _username; set => _username = value; }
 
         public Mainform(Login login, string username)
         {
             InitializeComponent();
             LoginForm = login;
+            Username = username;
 
-            Game = new Game(this, username);
+            Game = new Game(this, Username);
 
         }
         private void UpdateChat()
@@ -108,6 +111,11 @@ namespace Battlespire
         private void Mainform_FormClosing(object sender, FormClosingEventArgs e)
         {
             LoginForm.Close();
+        }
+
+        public void ReloadGame()
+        {
+            Game = new(this, Username);
         }
     }
 }

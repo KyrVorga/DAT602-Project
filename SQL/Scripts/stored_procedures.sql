@@ -168,11 +168,11 @@ begin
 		values (
 			_account_id,
 			"player",
-			1,
+			10,
 			0,
-			1,
-			1,
-			1,
+			10,
+			10,
+			10,
 			_home_tile,
 			0
 		);
@@ -301,6 +301,10 @@ begin
 			on t.tile_id = e.tile_id
 		where
 			e.entity_id = _chest_id;
+		
+		if _distance < 1 then
+			set _distance = 1;
+		end if;
 	
 	
 		set _type_mod = ceil(rand() *4);
@@ -325,16 +329,32 @@ begin
 		
 		-- determine the tier
 	    set _tier = CalculateTier(_distance);
+
+		select t.tile_id 
+			into _inventory_tile
+		from tile t 
+			where t.owner_id = _chest_id 
+			and t.tile_id not in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _chest_id
+				)
+			order by rand()
+			limit 1;
 		
-		inventory_tile_loop: loop
-			set _x = ceil(rand() *8);
-			set _y = ceil(rand() *4);
-			if (select tile_id from tile where x = _x and y = _y and tile_type = "inventory" and owner_id = _chest_id) != null
-				then iterate inventory_tile_loop;
-			end if;
-			set _inventory_tile = (select tile_id from tile where x = _x and y = _y and tile_type = "inventory" and owner_id = _chest_id);
-			leave inventory_tile_loop;	
-		end loop inventory_tile_loop;
+-- 		inventory_tile_loop: loop
+-- 			set _x = ceil(rand() *8);
+-- 			set _y = ceil(rand() *4);
+-- 			if (select tile_id from tile where x = _x and y = _y and tile_type = "inventory" and owner_id = _chest_id) != null
+-- 				then iterate inventory_tile_loop;
+-- 			end if;
+-- 			set _inventory_tile = (select tile_id from tile where x = _x and y = _y and tile_type = "inventory" and owner_id = _chest_id);
+-- 			leave inventory_tile_loop;	
+-- 		end loop inventory_tile_loop;
 		
 		-- create the new item
 		insert into entity (name, health, attack, defense, healing, entity_type, owner_id, tile_id, is_equipped)
