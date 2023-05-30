@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<diagram version="1" name="Battlespire ER Diagram">
+	<entities>
+		<data-source id="mysql8-18711335edc-4e1deba8b78848e5">
+			<entity id="1" name="account" fq-name="battlespire.account">
+				<path name="battlespire"/>
+			</entity>
+			<entity id="2" name="entity" fq-name="battlespire.entity">
+				<path name="battlespire"/>
+			</entity>
+			<entity id="3" name="entity_type" fq-name="battlespire.entity_type">
+				<path name="battlespire"/>
+			</entity>
+			<entity id="4" name="message" fq-name="battlespire.message">
+				<path name="battlespire"/>
+			</entity>
+			<entity id="5" name="terrain_type" fq-name="battlespire.terrain_type">
+				<path name="battlespire"/>
+			</entity>
+			<entity id="6" name="tile" fq-name="battlespire.tile">
+				<path name="battlespire"/>
+			</entity>
+		</data-source>
+	</entities>
+	<relations>
+		<relation name="fk_entity_account" fq-name="battlespire.entity.fk_entity_account" type="fk" pk-ref="1" fk-ref="2"/>
+		<relation name="fk_message_account" fq-name="battlespire.message.fk_message_account" type="fk" pk-ref="1" fk-ref="4"/>
+		<relation name="fk_entity_owner" fq-name="battlespire.entity.fk_entity_owner" type="fk" pk-ref="2" fk-ref="2"/>
+		<relation name="fk_entity_entity_type" fq-name="battlespire.entity.fk_entity_entity_type" type="fk" pk-ref="3" fk-ref="2"/>
+		<relation name="fk_tile_terrain_type" fq-name="battlespire.tile.fk_tile_terrain_type" type="fk" pk-ref="5" fk-ref="6"/>
+		<relation name="fk_entity_tile" fq-name="battlespire.entity.fk_entity_tile" type="fk" pk-ref="6" fk-ref="2"/>
+	</relations>
+</diagram>

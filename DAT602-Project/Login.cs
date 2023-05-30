@@ -35,9 +35,9 @@ namespace Battlespire
 
             if (db_connection.LoginUser(username, password))
             {
-                MessageBox.Show("Logged in successfully.");
+                // MessageBox.Show("Logged in successfully.");
                 this.Hide();
-                Game game = new Game(this, username);
+                Mainform game = new Mainform(this, username);
                 game.Show();
             }
             else

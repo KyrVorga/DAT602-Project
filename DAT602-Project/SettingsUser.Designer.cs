@@ -28,20 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
+            deleteAccountButton = new Button();
+            SuspendLayout();
+            // 
+            // deleteAccountButton
+            // 
+            deleteAccountButton.Location = new Point(243, 123);
+            deleteAccountButton.Name = "deleteAccountButton";
+            deleteAccountButton.Size = new Size(101, 23);
+            deleteAccountButton.TabIndex = 0;
+            deleteAccountButton.Text = "Delete Account";
+            deleteAccountButton.UseVisualStyleBackColor = true;
+            deleteAccountButton.Click += deleteAccountButton_Click;
             // 
             // SettingsUser
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Name = "SettingsUser";
-            this.Text = "SettingsUser";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.SettingsUser_FormClosed);
-            this.ResumeLayout(false);
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(560, 270);
+            Controls.Add(deleteAccountButton);
+            Margin = new Padding(2, 2, 2, 2);
+            Name = "SettingsUser";
+            Text = "SettingsUser";
+            FormClosed += SettingsUser_FormClosed;
+            ResumeLayout(false);
         }
 
         #endregion
+
+        private Button deleteAccountButton;
     }
 }

@@ -1,4 +1,6 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Battlespire;
+using Google.Protobuf.WellKnownTypes;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,13 +13,13 @@ namespace Battlespire
     internal class GameDAO : DatabaseAccessObject
     {
 
-        public List<String> GetChat()
+        public List<string> GetChat()
         {
 
             DataSet chat_logs = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetChatHistory();");
 
             //register_result.Tables[0].Rows[0]["message"].ToString();
-            var chat_messages = new List<String>();
+            var chat_messages = new List<string>();
             foreach (DataRow row in chat_logs.Tables[0].Rows)
             {
                 chat_messages.Add(row[0].ToString());
@@ -26,11 +28,11 @@ namespace Battlespire
             return chat_messages;
         }
 
-        public List<String> GetLeaderboard()
+        public List<string> GetLeaderboard()
         {
             DataSet leaderboard_raw = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetLeaderboard();");
 
-            var leaderboard_list = new List<String>();
+            var leaderboard_list = new List<string>();
             foreach (DataRow row in leaderboard_raw.Tables[0].Rows)
             {
                 leaderboard_list.Add(row[0].ToString());
@@ -40,7 +42,7 @@ namespace Battlespire
         }
 
 
-        public Boolean checkIsAdmin(String username_param)
+        public Boolean CheckIsAdmin(string username_param)
         {
             List<MySqlParameter> procedure_params = new List<MySqlParameter>();
             MySqlParameter username = new("@username", MySqlDbType.VarChar, 50)
@@ -49,47 +51,383 @@ namespace Battlespire
             };
             procedure_params.Add(username);
 
-            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call IsAdminAccount(@username)", procedure_params.ToArray());
+            DataSet query_result = MySqlHelper.ExecuteDataset(MySqlConnection, "call IsAdminAccount(@username)", procedure_params.ToArray());
 
-            DataRow result_row = query_result.Tables[0].Rows[0];
-            string value = result_row.ItemArray[0].ToString();
 
-            if (value == "True")
-            {
-                return true;
-            }
-            else return false;
+            DataRow row = query_result.Tables[0].Rows[0];
+            if (row != null)
+                {
+                    if ((bool)row[0] == true)
+                    {
+                        return true;
+                    }
+                }
+            return false;
+
         }
 
-        public List<String> GetTilesByPlayer(int player_id)
+        public List<Tile> GetTilesByPlayer(int player_id)
+        {
+
+            List<Tile> tile_list = new();
+            try
+            {
+                List<MySqlParameter> procedure_params = new()
+                {
+                    new()
+                    {
+                        ParameterName = "@player_id",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Value = player_id
+                    },
+                    new()
+                    {
+                        ParameterName = "@viewport_width",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Value = 10
+                    },
+                    new()
+                    {
+                        ParameterName = "@viewport_height",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Value = 10
+                    }
+
+                };
+
+                DataSet query_result = MySqlHelper.ExecuteDataset(MySqlConnection, "call GetTilesByPlayer(@player_id, @viewport_width, @viewport_height)", procedure_params.ToArray());
+            
+                foreach (DataRow row in query_result.Tables[0].Rows)
+                {
+                
+                    var newTile = new BoardTile((int)row[0], (int)row[1], (int)row[2], (string)row[3]);
+                    tile_list.Add(newTile);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+              
+            return tile_list;
+        }
+
+        public void PlayerExit(int player_id)
+        {
+            try
+            {
+                List<MySqlParameter> procedure_params = new()
+                {
+                    new()
+                    {
+                        ParameterName = "@player_id",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Value = player_id
+                    }
+                };
+
+                MySqlHelper.ExecuteDataset(MySqlConnection, "call PlayerWin(@player_id)", procedure_params.ToArray());
+
+                Game.Mainform.ReloadGame();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
+
+        public List<Entity> LoadEntities(int playerId)
+        {
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter player_id = new("@player_id", MySqlDbType.VarChar, 50)
+            {
+                Value = playerId
+            };
+            procedure_params.Add(player_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetAllEntities(@player_id)", procedure_params.ToArray());
+
+            var entity_list = new List<Entity>();
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+                if ((string)row["entity_type"] == "player")
+                {
+                    //convert to named arguments 
+                    Entity newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["damage_taken"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
+                    entity_list.Add(newEntity);
+                }
+                else if ((string)row["entity_type"] == "monster")
+                {
+                    //convert to named arguments 
+                    Entity newEntity = new Monster((int)row["entity_id"], (string)row["name"], (int)row["health"], (int)row["damage_taken"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (string)row["entity_type"], (int)row["tile_id"]);
+                    entity_list.Add(newEntity);
+                }
+                else if ((string)row["entity_type"] == "chest")
+                {
+                    //convert to named arguments 
+                    Entity newEntity = new Chest((int)row["entity_id"], (string)row["entity_type"], (int)row["tile_id"]);
+                    entity_list.Add(newEntity);
+                }
+
+            }
+            return entity_list;
+        }
+
+        public Player LoadPlayer(string username_param)
+        {
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter username = new("@username", MySqlDbType.VarChar, 50)
+            {
+                Value = username_param
+            };
+            procedure_params.Add(username);
+
+
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetPlayerByAccUsername(@username)", procedure_params.ToArray());
+            Player newEntity;
+
+            DataRow row = query_result.Tables[0].Rows[0];
+            //convert to named arguments 
+            newEntity = new Player((int)row["entity_id"], (int)row["health"], (int)row["damage_taken"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (int)row["account_id"], (string)row["entity_type"], (int)row["tile_id"], (int)row["killscore"]);
+
+            return newEntity;
+        }
+
+        public void MovePlayer(int target_tile, int entity_id)
         {
 
             List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter _target_tile = new("@target_tile", MySqlDbType.Int32)
+            {
+                Value = target_tile
+            };
             MySqlParameter _player_id = new("@player_id", MySqlDbType.Int32)
             {
-                Value = player_id
+                Value = entity_id
             };
-            MySqlParameter _viewport_width = new("@viewport_width", MySqlDbType.Int32)
-            {
-                Value = 10
-            };
-            MySqlParameter _viewport_height = new("@viewport_height", MySqlDbType.Int32)
-            {
-                Value = 10
-            };
+            procedure_params.Add(_target_tile);
             procedure_params.Add(_player_id);
-            procedure_params.Add(_viewport_width);
-            procedure_params.Add(_viewport_height);
 
-            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetTilesByPlayer(@player_id, @viewport_width, @viewport_height)", procedure_params.ToArray());
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call MovePlayer(@target_tile, @player_id)", procedure_params.ToArray());
 
-            var tile_list = new List<String>();
+        }
+
+
+        public List<Item> GetEntityInventory(int entity_id)
+        {
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
+            {
+                Value = entity_id
+            };
+            procedure_params.Add(_entity_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetEntityInventory(@entity_id)", procedure_params.ToArray());
+
+            var item_list = new List<Item>();
             foreach (DataRow row in query_result.Tables[0].Rows)
             {
-                tile_list.Add(row[0].ToString());
+                //convert to named arguments 
+                // Console.WriteLine(row["is_equipped"].ToString());
+                Item newEntity = new Item((int)row["entity_id"], (string)row["name"], (string)row["entity_type"], (int)row["tile_id"], (int)row["owner_id"], (int)row["health"], (int)row["attack"], (int)row["defense"], (int)row["healing"], (bool)row["is_equipped"]);
+                item_list.Add(newEntity);
+              
+
+            }
+            return item_list;
+        }
+
+        public List<Tile> GetPlayerInventoryTiles(int playerId)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
+            {
+                Value = playerId
+            };
+            procedure_params.Add(_entity_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetEntityInventoryTiles(@entity_id)", procedure_params.ToArray());
+
+            var tile_list = new List<Tile>();
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+                if (row != null)
+                {
+                    var newTile = new PlayerInventoryTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], (int)row[4]);
+                    tile_list.Add(newTile);
+                }
             }
 
             return tile_list;
         }
+
+        public List<Tile> GetChestInventoryTiles(int chestId)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
+            {
+                Value = chestId
+            };
+            procedure_params.Add(_entity_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetEntityInventoryTiles(@entity_id)", procedure_params.ToArray());
+
+            var tile_list = new List<Tile>();
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+                if (row != null)
+                {
+                    var newTile = new ChestInventoryTile((int)row[0], (int)row[1], (int)row[2], (string)row[3], (int)row[4]);
+                    tile_list.Add(newTile);
+                }
+            }
+
+            return tile_list;
+        }
+
+        public void MoveInventoryItem(int _item_id, int _origin_tile_id, int _target_tile_id)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter item_id = new("@item_id", MySqlDbType.Int32)
+            {
+                Value = _item_id
+            };
+            MySqlParameter origin_tile_id = new("@origin_tile_id", MySqlDbType.Int32)
+            {
+                Value = _origin_tile_id
+            };
+            MySqlParameter target_tile_id = new("@target_tile_id", MySqlDbType.Int32)
+            {
+                Value = _target_tile_id
+            };
+
+            procedure_params.Add(item_id);
+            procedure_params.Add(origin_tile_id);
+            procedure_params.Add(target_tile_id);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call MoveInventoryItem(@item_id, @origin_tile_id, @target_tile_id)", procedure_params.ToArray());
+
+        }
+
+        public void EquipItem(int _player_id, int _item_id)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter item_id = new("@item_id", MySqlDbType.Int32)
+            {
+                Value = _item_id
+            };
+            MySqlParameter player_id = new("@player_id", MySqlDbType.Int32)
+            {
+                Value = _player_id
+            };
+
+            procedure_params.Add(player_id);
+            procedure_params.Add(item_id);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call EquipItem(@player_id, @item_id)", procedure_params.ToArray());
+
+        }
+
+        public void MoveMonster(int p_monster_id)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter monster_id = new("@p_monster_id", MySqlDbType.Int32)
+            {
+                Value = p_monster_id
+            };
+
+            procedure_params.Add(monster_id);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call MoveMonsterNPC(@p_monster_id)", procedure_params.ToArray());
+
+        }
+
+        public void TransferItem(int itemId, int playerId)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter item_id = new("@item_id", MySqlDbType.Int32)
+            {
+                Value = itemId
+            };
+            MySqlParameter player_id = new("@player_id", MySqlDbType.Int32)
+            {
+                Value = playerId
+            };
+
+            procedure_params.Add(player_id);
+            procedure_params.Add(item_id);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call TransferItem(@item_id, @player_id)", procedure_params.ToArray());
+
+        }
+
+        public void DamageEntity(int pAttackerId, int pDefenderId)
+        {
+
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+
+            MySqlParameter attackerId = new("@attacker_id", MySqlDbType.Int32)
+            {
+                Value = pAttackerId
+            };
+            MySqlParameter defenderId = new("@defender_id", MySqlDbType.Int32)
+            {
+                Value = pDefenderId
+            };
+
+            procedure_params.Add(attackerId);
+            procedure_params.Add(defenderId);
+
+            MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call DamageEntity(@attacker_id, @defender_id)", procedure_params.ToArray());
+
+        }
+
+        internal Dictionary<string, decimal> GetPlayerStats(int entityId)
+        {
+            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+            MySqlParameter entity_id = new("@entity_id", MySqlDbType.Int32)
+            {
+                Value = entityId
+            };
+            procedure_params.Add(entity_id);
+            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetPlayerStats(@entity_id)", procedure_params.ToArray());
+
+            Dictionary<string, decimal> newStats = new();
+
+
+            foreach (DataRow row in query_result.Tables[0].Rows)
+            {
+                if (row != null)
+                {
+                    newStats.Add("Health", (decimal)row[0]);
+                    newStats.Add("Attack", (decimal)row[1]);
+                    newStats.Add("Defense", (decimal)row[2]);
+                    newStats.Add("Healing", (decimal)row[3]);
+                    newStats.Add("DamageTaken", (decimal)row[4]);
+                }
+            }
+
+            return newStats;
+        }
+
+
+        //public void CalculateHealth(int entity_id)
+        //{
+        //    List<MySqlParameter> procedure_params = new List<MySqlParameter>();
+        //    MySqlParameter _entity_id = new("@entity_id", MySqlDbType.Int32)
+        //    {
+        //        Value = entity_id
+        //    };
+        //    procedure_params.Add(_entity_id);
+        //    DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call CalculateHealth(@entity_id)", procedure_params.ToArray());
+        //}
     }
 }

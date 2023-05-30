@@ -1,0 +1,25 @@
+{
+	"7bd5def1-3378-44c6-a277-e861614c71b3": {
+		"task": "scriptExecute",
+		"label": "Create Database",
+		"description": "Creates database, procedures and inserts test data",
+		"createTime": "202305081740",
+		"updateTime": "202305081740",
+		"state": {
+			"scriptFiles": [
+				"/DAT602-Project/Scripts/creation_script.sql",
+				"/DAT602-Project/Scripts/stored_functions.sql",
+				"/DAT602-Project/Scripts/stored_procedures.sql"
+			],
+			"dataSources": [
+				{
+					"project": "DAT602-Project",
+					"dataSource": "mysql8-18711335edc-4e1deba8b78848e5"
+				}
+			],
+			"ignoreErrors": false,
+			"dumpQueryResultsToLog": false,
+			"autoCommit": false
+		}
+	}
+}
