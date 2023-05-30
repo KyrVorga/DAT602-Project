@@ -123,26 +123,23 @@ begin
 		("ground"),
 		("wall"),
 		("inventory"),
-		("equipped_armor"),
-		("equipped_sword"),
-		("equipped_shield"),
-		("equipped_amulet");
+		("exit");
     
 	call GenerateMap(40, 40);
 
 
 	-- add some tiles that are further from the center manually
-	insert into tile (x, y, tile_type)
-	values (100, 250, 'ground');
-	
-	insert into tile (x, y, tile_type)
-	values (473, 763, 'ground');
-	
-	insert into tile (x, y, tile_type)
-	values (1354, 3581, 'ground');
-	
-	insert into tile (x, y, tile_type)
-	values (13354, 35581, 'ground');
+-- 	insert into tile (x, y, tile_type)
+-- 	values (100, 250, 'ground');
+-- 	
+-- 	insert into tile (x, y, tile_type)
+-- 	values (473, 763, 'ground');
+-- 	
+-- 	insert into tile (x, y, tile_type)
+-- 	values (1354, 3581, 'ground');
+-- 	
+-- 	insert into tile (x, y, tile_type)
+-- 	values (13354, 35581, 'ground');
 
 
 
@@ -165,59 +162,59 @@ begin
     
 
 	-- these 4 use the id's that are manually added to provied some higher tier items.
-	call SpawnChest(6562);
-	call SpawnChest(6563);
-	call SpawnChest(6564);
-	call SpawnChest(6565);
-
-	call SpawnChest(1523);
-	call SpawnChest(2351);
-	call SpawnChest(6431);
-	call SpawnChest(3461);
-	call SpawnChest(134);
-	call SpawnChest(4621);
-	call SpawnChest(1200);
-	call SpawnChest(1341);
-	call SpawnChest(1342);
-	call SpawnChest(1343);
-	call SpawnChest(1344);
-	call SpawnChest(1345);
-	call SpawnChest(1346);
-	call SpawnChest(1347);
-	call SpawnChest(1348);
-	call SpawnChest(1349);
-	call SpawnChest(1340);
-	call SpawnChest(1332);
-	call SpawnChest(1334);
-    
-	call SpawnChest(3360);
-	
-	call SpawnMonster(6500); 
-	call SpawnMonster(6500); 
-	call SpawnMonster(6500); 
-	call SpawnMonster(6500); 
-	
-	call SpawnMonster(6562); 
-	call SpawnMonster(6562); 
-	call SpawnMonster(6562); 
-	call SpawnMonster(6562); 
-	
-	call SpawnMonster(6563);
-	call SpawnMonster(6563);
-	call SpawnMonster(6563);
-	call SpawnMonster(6563);
-	
-	call SpawnMonster(6564); 
-	call SpawnMonster(6564); 
-	call SpawnMonster(6564); 
-	call SpawnMonster(6564); 
-	
-	call SpawnMonster(6565); 
-	call SpawnMonster(6565); 
-	call SpawnMonster(6565); 
-	call SpawnMonster(6565); 
-
-	call SpawnMonster(3041); 
+-- 	call SpawnChest(6562);
+-- 	call SpawnChest(6563);
+-- 	call SpawnChest(6564);
+-- 	call SpawnChest(6565);
+-- 
+-- 	call SpawnChest(1523);
+-- 	call SpawnChest(2351);
+-- 	call SpawnChest(6431);
+-- 	call SpawnChest(3461);
+-- 	call SpawnChest(134);
+-- 	call SpawnChest(4621);
+-- 	call SpawnChest(1200);
+-- 	call SpawnChest(1341);
+-- 	call SpawnChest(1342);
+-- 	call SpawnChest(1343);
+-- 	call SpawnChest(1344);
+-- 	call SpawnChest(1345);
+-- 	call SpawnChest(1346);
+-- 	call SpawnChest(1347);
+-- 	call SpawnChest(1348);
+-- 	call SpawnChest(1349);
+-- 	call SpawnChest(1340);
+-- 	call SpawnChest(1332);
+-- 	call SpawnChest(1334);
+--     
+-- 	call SpawnChest(3360);
+-- 	
+-- 	call SpawnMonster(6500); 
+-- 	call SpawnMonster(6500); 
+-- 	call SpawnMonster(6500); 
+-- 	call SpawnMonster(6500); 
+-- 	
+-- 	call SpawnMonster(6562); 
+-- 	call SpawnMonster(6562); 
+-- 	call SpawnMonster(6562); 
+-- 	call SpawnMonster(6562); 
+-- 	
+-- 	call SpawnMonster(6563);
+-- 	call SpawnMonster(6563);
+-- 	call SpawnMonster(6563);
+-- 	call SpawnMonster(6563);
+-- 	
+-- 	call SpawnMonster(6564); 
+-- 	call SpawnMonster(6564); 
+-- 	call SpawnMonster(6564); 
+-- 	call SpawnMonster(6564); 
+-- 	
+-- 	call SpawnMonster(6565); 
+-- 	call SpawnMonster(6565); 
+-- 	call SpawnMonster(6565); 
+-- 	call SpawnMonster(6565); 
+-- 
+-- 	call SpawnMonster(3041); 
 
 
 	call CreatePlayer(1);

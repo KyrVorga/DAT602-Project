@@ -29,7 +29,7 @@ namespace Battlespire
             Mainform = mainform;
 
             DbConnection = new();
-
+            PlayerName = username;
             CurrentPlayer = DbConnection.LoadPlayer(username);
             Tiles = GetTiles();
             Entities = GetEntities();
@@ -114,7 +114,6 @@ namespace Battlespire
 
         public static void MoveItem(Player player)
         {
-            Console.WriteLine("MoveItem");
             List<Tile> tiles = player.Inventory.Tiles;
             List<Item> items = player.Inventory.Items;
 
@@ -165,8 +164,6 @@ namespace Battlespire
 
         public static void MoveItem(Chest chest)
         {
-            Console.WriteLine("MoveItem");
-            Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
             List<Tile> tiles = chest.Inventory.Tiles;
             List<Item> items = chest.Inventory.Items;
 
@@ -212,7 +209,6 @@ namespace Battlespire
             chest.Inventory.GetItems();
             TargetTile = null;
             InitialTile = null;
-            Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
             chest.Inventory.ChestTransferForm.UpdateBoard();
         }
 
@@ -280,24 +276,44 @@ namespace Battlespire
         public static void ClearBoard(Control panel, List<Tile> tiles)
         {
 
-            for (int i = 0; i < panel.Controls.Count; i++)
-            {
-                Tile tile = tiles[i];
-                Control box = panel.Controls[i];
+            //for (int i = 0; i < panel.Controls.Count; i++)
+            //{
+            //    Tile tile = tiles[i];
+            //    Control box = panel.Controls[i];
 
+            //    box.Name = tile.Id.ToString();
+            //    box.BackColor = Color.Gray;
+            //}
+            int i = 0;
+            foreach (var tile in tiles)
+            {
+                Control box = panel.Controls[i];
                 box.Name = tile.Id.ToString();
-                box.BackColor = Color.Gray;
+                if (tile.TileType == "wall")
+                {
+                    box.BackColor = Color.Black;
+                }
+                else if (tile.TileType == "exit")
+                {
+                    box.BackColor = Color.Beige;
+                }
+                else
+                {
+                    box.BackColor = Color.Gray;
+                }
+                i++;
             }
         }
 
 
         public static void UpdateGameBoard(Control panel, List<Tile> tiles, List<Entity> entities)
         {
-            Console.WriteLine("UpdateGameBoard");
             ClearBoard(panel, tiles);
             var query = from entity in entities
                         join tile in tiles on entity.TileId equals tile.Id
                         select new { entity.EntityId, entity.TileId, entity.EntityType };
+
+
 
             foreach (var entity in query)
             {
@@ -325,7 +341,6 @@ namespace Battlespire
         // is being passed old tiles and items
         public static void UpdateInventoryBoard(Control panel, List<Tile> tiles, List<Item> items)
         {
-            Console.WriteLine("UpdateInventoryBoard");
             ClearBoard(panel, tiles);
             var query = from item in items
                         join tile in tiles on item.TileId equals tile.Id

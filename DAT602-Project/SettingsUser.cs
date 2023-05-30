@@ -24,5 +24,12 @@ namespace Battlespire
         {
             _game.Show();
         }
+
+        private void deleteAccountButton_Click(object sender, EventArgs e)
+        {
+
+            AdminDAO db_connection = new();
+            db_connection.DeleteAccount();
+        }
     }
 }

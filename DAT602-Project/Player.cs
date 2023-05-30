@@ -1,6 +1,7 @@
 ﻿using Battlespire;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -106,6 +107,11 @@ namespace Battlespire
         public override string ToString()
         {
             return string.Format("Type: {0} | ID: {1} | Tile: {2} | Account: {3}", EntityType, EntityId, TileId, AccountId);
+        }
+
+        internal void ExitGame()
+        {
+            Game.DbConnection.PlayerExit(EntityId);
         }
     }
 }

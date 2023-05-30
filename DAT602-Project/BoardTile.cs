@@ -18,7 +18,6 @@ namespace Battlespire
         {
             PictureBox pictureBox = (PictureBox)sender;
 
-            //Console.WriteLine(this.ToString());
             int tileId = Int32.Parse(pictureBox.Name);
 
             var query = from entity in Game.Entities
@@ -37,21 +36,14 @@ namespace Battlespire
                     }
                     else if (entity.EntityType == "chest")
                     {
-                        // chest click function
-                        //Inventory inventory = Board.Current_player.Inventory;
-                        //InventoryForm inventoryForm = inventory.InventoryForm;
-                        //inventoryForm.Show();
-
                         int chestId = entity.EntityId;
 
                         foreach (var gameEntity in query)
                         {
                             Chest chest = (Chest)Game.Entities.Single(gameEntity => gameEntity.EntityId == chestId);
-                            Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
                             if (chest != null)
                             {
                                 chest.Inventory.ChestTransferForm = new ChestTransferForm(chest);
-                                Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
                                 chest.Inventory.ChestTransferForm.Show();
                             }
                         }
@@ -60,7 +52,18 @@ namespace Battlespire
             }
             else
             {
-                Game.CurrentPlayer.PlayerMove(tileId);
+                //var currentTile = from tile in Game.Tiles where tile.Id == tileId select tile;
+                Tile currentTile = Game.Tiles.FirstOrDefault(t => t.Id == tileId);
+                if (currentTile != null)
+                {
+                    if (currentTile.TileType == "exit")
+                    {
+                        Game.CurrentPlayer.ExitGame();
+                    } else if (currentTile.TileType == "ground")
+                    {
+                        Game.CurrentPlayer.PlayerMove(tileId);
+                    }
+                }
             }
         }
     }

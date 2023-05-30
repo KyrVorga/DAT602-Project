@@ -37,7 +37,6 @@ namespace Battlespire
                         Chest chest = (Chest)Game.Entities.Single(entity => entity.EntityId == chestId);
                         if (chest != null)
                         {
-                            Console.WriteLine(chest.Inventory.ChestTransferForm.Board.Controls.Count);
                             Game.MoveItem(chest);
                         }
                     }

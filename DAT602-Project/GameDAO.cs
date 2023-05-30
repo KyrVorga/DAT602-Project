@@ -1,4 +1,5 @@
 ﻿using Battlespire;
+using Google.Protobuf.WellKnownTypes;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -12,13 +13,13 @@ namespace Battlespire
     internal class GameDAO : DatabaseAccessObject
     {
 
-        public List<String> GetChat()
+        public List<string> GetChat()
         {
 
             DataSet chat_logs = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetChatHistory();");
 
             //register_result.Tables[0].Rows[0]["message"].ToString();
-            var chat_messages = new List<String>();
+            var chat_messages = new List<string>();
             foreach (DataRow row in chat_logs.Tables[0].Rows)
             {
                 chat_messages.Add(row[0].ToString());
@@ -27,11 +28,11 @@ namespace Battlespire
             return chat_messages;
         }
 
-        public List<String> GetLeaderboard()
+        public List<string> GetLeaderboard()
         {
             DataSet leaderboard_raw = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetLeaderboard();");
 
-            var leaderboard_list = new List<String>();
+            var leaderboard_list = new List<string>();
             foreach (DataRow row in leaderboard_raw.Tables[0].Rows)
             {
                 leaderboard_list.Add(row[0].ToString());
@@ -41,7 +42,7 @@ namespace Battlespire
         }
 
 
-        public Boolean checkIsAdmin(String username_param)
+        public Boolean CheckIsAdmin(string username_param)
         {
             List<MySqlParameter> procedure_params = new List<MySqlParameter>();
             MySqlParameter username = new("@username", MySqlDbType.VarChar, 50)
@@ -50,16 +51,19 @@ namespace Battlespire
             };
             procedure_params.Add(username);
 
-            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call IsAdminAccount(@username)", procedure_params.ToArray());
+            DataSet query_result = MySqlHelper.ExecuteDataset(MySqlConnection, "call IsAdminAccount(@username)", procedure_params.ToArray());
 
-            DataRow result_row = query_result.Tables[0].Rows[0];
-            string value = result_row.ItemArray[0].ToString();
 
-            if (value == "True")
-            {
-                return true;
-            }
-            else return false;
+            DataRow row = query_result.Tables[0].Rows[0];
+            if (row != null)
+                {
+                    if ((bool)row[0] == true)
+                    {
+                        return true;
+                    }
+                }
+            return false;
+
         }
 
         public List<Tile> GetTilesByPlayer(int player_id)
@@ -68,7 +72,7 @@ namespace Battlespire
             List<Tile> tile_list = new();
             try
             {
-                List<MySqlParameter> procedure_params = new List<MySqlParameter>
+                List<MySqlParameter> procedure_params = new()
                 {
                     new()
                     {
@@ -91,7 +95,7 @@ namespace Battlespire
 
                 };
 
-                DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetTilesByPlayer(@player_id, @viewport_width, @viewport_height)", procedure_params.ToArray());
+                DataSet query_result = MySqlHelper.ExecuteDataset(MySqlConnection, "call GetTilesByPlayer(@player_id, @viewport_width, @viewport_height)", procedure_params.ToArray());
             
                 foreach (DataRow row in query_result.Tables[0].Rows)
                 {
@@ -107,6 +111,32 @@ namespace Battlespire
               
             return tile_list;
         }
+
+        public void PlayerExit(int player_id)
+        {
+            try
+            {
+                List<MySqlParameter> procedure_params = new()
+                {
+                    new()
+                    {
+                        ParameterName = "@player_id",
+                        MySqlDbType = MySqlDbType.Int32,
+                        Value = player_id
+                    }
+                };
+
+                MySqlHelper.ExecuteDataset(MySqlConnection, "call PlayerWin(@player_id)", procedure_params.ToArray());
+
+                Game.Mainform.ReloadGame();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+
 
         public List<Entity> LoadEntities(int playerId)
         {
@@ -377,7 +407,6 @@ namespace Battlespire
             {
                 if (row != null)
                 {
-                    Console.WriteLine(row[0].GetType);
                     newStats.Add("Health", (decimal)row[0]);
                     newStats.Add("Attack", (decimal)row[1]);
                     newStats.Add("Defense", (decimal)row[2]);

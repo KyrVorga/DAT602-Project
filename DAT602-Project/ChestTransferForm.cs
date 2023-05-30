@@ -49,7 +49,7 @@ namespace Battlespire
 
         private void take_button_Click(object sender, EventArgs e)
         {
-            if (Game.InitialTile.Id != null)
+            if (Game.InitialTile != null)
             {
                 Item item = (Item)Chest.Inventory.Items.Single(item => item.TileId == Game.InitialTile.Id);
                 Game.TransferItem(item);

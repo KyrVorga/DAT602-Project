@@ -2,19 +2,72 @@ use `battlespire`;
 
 select * from account;
 select * from entity;
+select * from entity where entity_type = "player" and account_id = 11;
 
+
+
+call ResetGame();
+call getplayerbyaccusername("asdf") 
+call CreatePlayer(11)
+call deleteaccount(1) 
+
+select  a.account_id 
+		from account a 
+			join entity e
+			on e.account_id = a.account_id 
+			where a.username = 'asdf' ;
+
+select 	
+	select count(*) from tile
+	join entity e 
+	on tile.owner_id = e.entity_id 
+	where entity_type = 'player'
+delete tile 
+		from tile
+		join entity 
+		on entity.entity_id = tile.owner_id 
+		where entity.entity_type != 'player';
+
+
+	select entity_id, a.account_id 
+	from entity e 
+		join account a on a.account_id = e.account_id 
+		where a.username = "asdf";
+
+	if playerId = null then
+		call createPlayer(accountId);
+		select *
+		from entity e 
+			join account a on a.account_id = e.account_id 
+			where a.username = _username;
+	else
+		
+		select *
+		from entity e 
+			join account a on a.account_id = e.account_id 
+			where a.username = _username;
+	end if;
+
+
+call isAdminAccount('asdf')
 
 select * from entity where entity_type = "player";
 select * from entity where entity_type = "monster";
 select * from entity where entity_type = "item" and owner_id = 88;
 select * from entity where entity_type = "chest";
-
+select * from tile where x = 8 and y > 0 and tile_type != 'inventory' order by y;
+select count(*) from tile where tile_type = 'exit'
+select count(*) from tile where tile_type = 'wall'
+select count(*) from tile where tile_type = 'ground'
 select * from entity where entity_id = 89;
 
 select entity_type, tile_id
 	from entity
 		where entity_id = 90;
 
+	
+	delete from entity 
+	where account_id = 11
 
 call MoveMonsterNPC(80);
 
@@ -23,7 +76,6 @@ update entity set tile_id = 3442 where entity_id = 89;
 update entity set attack = 10 where entity_id = 93;
 
 call GetEntityInventoryTiles(1)
-
 
 
 select sum(health), sum(damage_taken)
@@ -46,7 +98,6 @@ call killentity(93)
 
 call GetPlayerStats();
 
-select * from entity where entity_type = "player" and account_id = 11;
 
 call checkentitystatus(92) 
 
@@ -114,7 +165,7 @@ select t2.tile_id from tile t2 where t2.owner_id = 86 and t2.tile_id not in (
 
 
 
-call GetEntityInventory(94)
+call GetEntityInventory(308)
 
 call GetEntityInventory(92)
 call EquipItem(93, 94)
@@ -151,7 +202,10 @@ call GetPlayerByAccUsername("asdf");
 -- call GetAllEntities()
 	
 call moveplayer(3607, :_player_id) 
-	
+	select *
+	from entity e 
+	join account a on a.account_id = e.account_id 
+	where a.username = "asdf";
 	
 	
 select pow(sqrt(pow(abs(t.x), 2) + pow(abs(t.x), 2)), 1.25)

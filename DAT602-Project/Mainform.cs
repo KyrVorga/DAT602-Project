@@ -59,7 +59,7 @@ namespace Battlespire
 
         private void settings_button_Click(object sender, EventArgs e)
         {
-            Boolean admin_result = Game.DbConnection.checkIsAdmin(Game.PlayerName);
+            Boolean admin_result = Game.DbConnection.CheckIsAdmin(Game.PlayerName);
             if (admin_result)
             {
                 this.Hide();
