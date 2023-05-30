@@ -13,139 +13,74 @@ namespace Battlespire
 {
     public partial class InventoryForm : Form
     {
-        private Inventory _inventory;
-        private static InventoryTile initial_tile;
-        private static InventoryTile target_tile;
+        private Player _player;
 
-        public InventoryForm(Inventory inventory)
+        public Player Player { get => _player; set => _player = value; }
+        public Panel Board { get => inventory_board; }
+        public InventoryForm(Player player)
         {
             InitializeComponent();
-            Inventory = inventory;
-
-            //Player player = Board.Current_player;
-            //if (player != null)
-            //{
-            //    player_name_label.Text = Game.Username;
-            //    player.CalculateStats();
-            //    UpdateStats();
-
-            //    GenerateBoard();
-            //}
-        }
-
-        public Inventory Inventory { get => _inventory; set => _inventory = value; }
-        public InventoryTile Target_tile { get => target_tile; set => target_tile = value; }
-        public InventoryTile Initial_tile { get => initial_tile; set => initial_tile = value; }
-
-        private void InventoryForm_Load(object sender, EventArgs e)
-        {
-            Player player = Board.Current_player;
-            if (player != null)
-            {
-                player_name_label.Text = Game.Username;
-                player.CalculateStats();
-                UpdateStats();
-
-                GenerateBoard();
-            }
-
-        }
-
-        public void UpdateStats()
-        {
-            Player player = Board.Current_player;
-            player_health_label.Text = string.Format("Health: {0}", player.Health);
-            player_attack_label.Text = string.Format("Attack: {0}", player.Attack);
-            player_defense_label.Text = string.Format("Defense: {0}", player.Defense);
-            player_healing_label.Text = string.Format("Healing: {0}", player.Healing);
-        }
-
-
-        public void GenerateBoard()
-        {
-            int tiles_accross = 9;
-            int tiles_vertical = 5;
-            int board_width = inventory_board.Width;
-            int tile_dimension = board_width / tiles_accross;
-            List<InventoryTile> Tile_list = Inventory.Tile_list;
-
-            //inventory_board.Controls.Clear();
-            int index = 0;
-            for (int i = 0; i < tiles_accross; i++)
-            {
-                for (int j = 0; j < tiles_vertical; j++)
-                {
-                    PictureBox pictureBox = new();
-                    pictureBox.BackColor = Color.Gray;
-                    pictureBox.Width = tile_dimension;
-                    pictureBox.Height = tile_dimension;
-                    pictureBox.Location = new Point(i * (pictureBox.Height + 1), j * (pictureBox.Width + 1));
-
-                    pictureBox.Click += Tile_list[index].Tile_Click;
-                    inventory_board.Controls.Add(pictureBox);
-                    index++;
-                }
-            }
-            UpdateBoard();
+            Player = player;
         }
 
         public void UpdateBoard()
         {
-            List<InventoryTile> Tile_list = Inventory.Tile_list;
-            List<Item> Item_list = Inventory.Item_list;
+            Player.Inventory.Items = Player.Inventory.GetItems();
+            Player.Inventory.Tiles = Player.Inventory.GetTiles();
 
-            for (int i = 0; i < inventory_board.Controls.Count; i++)
-            {
-                Tile tile = Inventory.Tile_list[i];
-                Control box = inventory_board.Controls[i];
-
-                box.Name = tile.Id.ToString();
-                box.BackColor = Color.Gray;
-                // remove previous Tile_click event handler
-
-
-            }
-
-
-
-
-            var query = from entity in Item_list
-                        join tile in Tile_list on entity.Tile_id equals tile.Id
-                        select new { entity.Entity_id, entity.Tile_id, entity.Name, entity.Is_equipped };
-
-            foreach (var entity in query)
-            {
-                if (entity.Name.StartsWith("Amulet"))
-                {
-                    inventory_board.Controls[entity.Tile_id.ToString()].BackColor = Color.Green;
-                }
-                else if (entity.Name.StartsWith("Sword"))
-                {
-                    inventory_board.Controls[entity.Tile_id.ToString()].BackColor = Color.Orange;
-                }
-                else if (entity.Name.StartsWith("Armour"))
-                {
-                    inventory_board.Controls[entity.Tile_id.ToString()].BackColor = Color.Red;
-                }
-                else if (entity.Name.StartsWith("Shield"))
-                {
-                    inventory_board.Controls[entity.Tile_id.ToString()].BackColor = Color.Blue;
-                }
-                if (entity.Is_equipped == true)
-                {
-                    inventory_board.Controls[entity.Tile_id.ToString()].BackColor = Color.Pink;
-                }
-            }
+            Game.UpdateInventoryBoard(Board, Player.Inventory.Tiles, Player.Inventory.Items);
         }
+
+        public void GenerateBoard(List<Tile> tiles, int playerId, int xStart, int yStart, int xEnd, int yEnd)
+        {
+
+            Game.GenerateBoard(inventory_board, tiles, playerId, xStart, yStart, xEnd, yEnd);
+        }
+
+        public void UpdateHealthLabel(decimal value)
+        {
+            player_health_label.Text = string.Format("Health: {0}", value);
+        }
+        public void UpdateCurrentHealthLabel(decimal value)
+        {
+            player_current_health_label.Text = string.Format("Current Health: {0}", value);
+        }
+        public void UpdateAttackLabel(decimal value)
+        {
+            player_attack_label.Text = string.Format("Attack: {0}", value);
+        }
+        public void UpdateDefenseLabel(decimal value)
+        {
+            player_defense_label.Text = string.Format("Defense: {0}", value);
+        }
+        public void UpdateHealingLabel(decimal value)
+        {
+            player_healing_label.Text = string.Format("Healing: {0}", value);
+        }
+
+
 
         private void equip_button_Click(object sender, EventArgs e)
         {
-            Inventory.EquipItem(Initial_tile);
-            Initial_tile = null;
-            Player player = Board.Current_player;
-            player.CalculateStats();
-            UpdateStats();
+            Player.Inventory.EquipItem(Game.InitialTile);
+            Game.InitialTile = null;
+            Player.CalculateStats();
+            Player.UpdateStats();
             UpdateBoard();
+        }
+
+        private void InventoryForm_Load(object sender, EventArgs e)
+        {
+
+            if (Player != null)
+            {
+                player_name_label.Text = Game.PlayerName;
+                Player.CalculateStats();
+                Player.UpdateStats();
+
+                GenerateBoard(Player.Inventory.Tiles, Player.EntityId, 0, 0, 8, 4);
+                UpdateBoard();
+            }
         }
     }
 }

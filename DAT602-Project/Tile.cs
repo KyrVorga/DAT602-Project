@@ -12,26 +12,23 @@ namespace Battlespire
         private int _id;
         private int _x;
         private int _y;
-        private string _tile_type;
-        private EventHandler click_ref;
-        public bool have_click = false;
-        public Tile(int id, int x, int y, string tile_type)
+        private string _tileType;
+        public Tile(int id, int x, int y, string tileType)
         {
             Id = id;
             X = x;
             Y = y;
-            Tile_type = tile_type;
+            TileType = tileType;
         }
 
         public int Id { get => _id; set => _id = value; }
         public int X { get => _x; set => _x = value; }
         public int Y { get => _y; set => _y = value; }
-        public string Tile_type { get => _tile_type; set => _tile_type = value; }
-        public EventHandler Click_ref { get => click_ref; set => click_ref = value; }
+        public string TileType { get => _tileType; set => _tileType = value; }
 
         public override string ToString()
         {
-            return string.Format("ID:{0} | X:{1} | Y:{2} | Type:{3}", Id, X, Y, Tile_type);
+            return string.Format("ID:{0} | X:{1} | Y:{2} | Type:{3}", Id, X, Y, TileType);
         }
         public virtual void Tile_Click(object sender, EventArgs e)
         {

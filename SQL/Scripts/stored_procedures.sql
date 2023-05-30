@@ -11,6 +11,10 @@ delimiter //
 create procedure CreateAccount(in _username varchar(50), in _email varchar(100), in _password varchar(50))
 begin
 
+	declare _account_id int;
+
+	set autocommit = off;
+	start transaction;
 	case
 		when _email in (
 			select email
@@ -25,6 +29,14 @@ begin
 		else insert into account (username, email, password)
 	    values (_username, _email, _password);
 	end case;
+	commit;
+	
+	select account_id 
+		into _account_id
+	from account 
+		where username = _username;
+	
+	call createplayer(_account_id);
 
 	select 'User Created' as message;
 end //
@@ -44,27 +56,54 @@ drop procedure if exists LoginAccount;
 delimiter //
 create procedure LoginAccount(in _username varchar(50), in _password varchar(50))
 login:begin
-		if (
-			select attempts
-			from account
-			where username = _username
-		) >= 5
-		then
-			select 'Error' as message;
-			leave login;
-		end if;
+	
+		declare _accountId int;
+		declare _playerId int;
+	
+		select e.entity_id 
+			into _playerId 
+		from entity e 
+		join account a 
+			on a.account_id = e.account_id 
+			where a.username = _username;
 		
-		if (
-			select username
-			from account
-			where username = _username
-			and password = _password
-		) = _username
-		then
-			select 'Login succesful.' as message;
-		else
-			select 'Error' as message;
-		end if;
+		
+		select account_id 
+			into _accountId 
+		from account 
+			where username = _username;
+		
+		set autocommit = off;
+		start transaction;
+			if (
+				select attempts
+				from account
+				where username = _username
+			) >= 5
+			then
+				select 'Error' as message;
+				leave login;
+			end if;
+			
+			if (
+				select username
+				from account
+				where username = _username
+				and password = _password
+				and is_logged_in = false 
+			) = _username
+			then
+				select 'Login succesful.' as message;
+				if _playerId is null then 
+					call createplayer(_accountId);
+				end if;
+			else
+				select 'Error' as message;
+				update account 
+				set attempts  = attempts + 1 
+				where username = _username;
+			end if;
+		commit;
 
 end //
 delimiter ;  
@@ -84,18 +123,72 @@ create procedure GenerateMap( in _width int, in _height int)
 begin
 declare _x int default _width * -1;
 declare _y int default _height * -1;
+declare _type varchar(50) default "ground";
+declare _type_mod int;
+declare _total_entities int default _width + _height;
+declare _index int default 0;
+declare _tile int;
 
--- lock table and start a transaction 
-	while _x <= _width do
-		while _y <= _height do
-			insert into tile (x, y, tile_type)
-	        values (_x, _y, "ground");
-			set _y = _y + 1;
+
+	set autocommit = off;
+	start transaction;
+		while _x <= _width do
+			while _y <= _height do
+				
+				
+				set _type_mod = ceil(rand() * 100);
+			
+				
+				if _type_mod <= 1 && _type_mod >= 0 then
+					set _type = "exit";
+				elseif _type_mod <= 25 && _type_mod > 1 then
+					set _type = "wall";
+				else 
+					set _type = "ground";
+				end if;
+				if _x = 0 and _y = 0 then 
+					set _type = "ground";
+				end if;
+			
+		
+				
+			
+				insert into tile (x, y, tile_type)
+		        values (_x, _y, _type);
+				set _y = _y + 1;
+			end while;
+		    set _y = _height * -1;
+		    set _x = _x + 1;
 		end while;
-	    set _y = _height * -1;
-	    set _x = _x + 1;
-	end while;
+	commit;
 
+	while _index < _total_entities do
+	
+	
+		select tile_id
+			into _tile
+		from tile t 
+			where tile_type = "ground" 
+				&& ((_x >= 10 or _x <= -10)
+				&& (_y >= 10 or _y <= -10))
+				&& tile_id not in (
+					select t2.tile_id
+					from tile t2
+						join entity e 
+						on e.tile_id = t2.tile_id
+						where t2.tile_type = "ground")
+			order by rand()
+			limit 1; 
+	
+		
+			if ceil(rand() * 10) < 5 then
+				call SpawnMonster(_tile);
+			else
+				call SpawnChest(_tile);
+			end if;
+				
+		set _index = _index +1;
+	end while;
 end //
 delimiter ;
 
@@ -114,17 +207,19 @@ create procedure GenerateInventory(in _entity_id int, in _width int, in _height 
 begin
 	declare _x int default 0;
 	declare _y int default 0;
--- lock table and start a transaction 
-	while _x <= _width do
-		while _y <= _height do
-			insert into tile (x, y, tile_type, owner_id)
-	        values (_x, _y, "inventory", _entity_id);
-			set _y = _y + 1;
-		end while;
-	    set _y = _height * 0;
-	    set _x = _x + 1;
-	end while;
 
+	set autocommit = off;
+	start transaction;
+		while _x <= _width do
+			while _y <= _height do
+					insert into tile (x, y, tile_type, owner_id)
+			        values (_x, _y, "inventory", _entity_id);
+					set _y = _y + 1;
+			end while;
+		    set _y = _height * 0;
+		    set _x = _x + 1;
+		end while;
+	commit;
 end //
 delimiter ;
 
@@ -158,24 +253,22 @@ begin
 			account_id,
 			entity_type,
 			health,
-			current_health,
+			damage_taken,
 			attack,
 			defense,
 			healing,
 			tile_id,
-			killscore,
-			inventory_used
+			killscore
 		)
 		values (
 			_account_id,
 			"player",
-			1,
-			1,
-			1,
-			1,
-			1,
-			_home_tile,
+			10,
 			0,
+			10,
+			10,
+			10,
+			_home_tile,
 			0
 		);
 
@@ -209,7 +302,6 @@ delimiter //
 create procedure MoveInventoryItem(in _item_id int, in _origin_tile_id int, in _target_tile_id int)
 begin
 	
-		
 	set autocommit = off;
 	start transaction;
 
@@ -235,17 +327,17 @@ delimiter ;
 --   \___/| .__/\__,_\__,_|\__\___| |___|_||_\__|_|\__|\_, | |___|_||_\_/\___|_||_\__\___/_|  \_, |
 --        |_|                                          |__/                                   |__/ 
 -- 
-drop procedure if exists UpdateEntityInventory;
-delimiter //
-create procedure UpdateEntityInventory(in _entity_id int)
-begin	
-	
-	update entity
-	set inventory_used = (select count(entity_id) from (select * from entity) as e where owner_id = _entity_id)
-	where entity_id = _entity_id;
-	
-end //
-delimiter ;
+-- drop procedure if exists UpdateEntityInventory;
+-- delimiter //
+-- create procedure UpdateEntityInventory(in _entity_id int)
+-- begin	
+-- 	
+-- 	update entity
+-- 	set inventory_used = (select count(entity_id) from (select * from entity) as e where owner_id = _entity_id)
+-- 	where entity_id = _entity_id;
+-- 	
+-- end //
+-- delimiter ;
 
 -- THIS PROCEDURE IS INCOMPLETE!
 -- drop procedure if exists PlayerEquipItem;
@@ -303,6 +395,10 @@ begin
 			on t.tile_id = e.tile_id
 		where
 			e.entity_id = _chest_id;
+		
+		if _distance < 1 then
+			set _distance = 1;
+		end if;
 	
 	
 		set _type_mod = ceil(rand() *4);
@@ -327,16 +423,32 @@ begin
 		
 		-- determine the tier
 	    set _tier = CalculateTier(_distance);
+
+		select t.tile_id 
+			into _inventory_tile
+		from tile t 
+			where t.owner_id = _chest_id 
+			and t.tile_id not in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _chest_id
+				)
+			order by rand()
+			limit 1;
 		
-		inventory_tile_loop: loop
-			set _x = ceil(rand() *8);
-			set _y = ceil(rand() *4);
-			if (select tile_id from tile where x = _x and y = _y and tile_type = "inventory" and owner_id = _chest_id) != null
-				then iterate inventory_tile_loop;
-			end if;
-			set _inventory_tile = (select tile_id from tile where x = _x and y = _y and tile_type = "inventory" and owner_id = _chest_id);
-			leave inventory_tile_loop;	
-		end loop inventory_tile_loop;
+-- 		inventory_tile_loop: loop
+-- 			set _x = ceil(rand() *8);
+-- 			set _y = ceil(rand() *4);
+-- 			if (select tile_id from tile where x = _x and y = _y and tile_type = "inventory" and owner_id = _chest_id) != null
+-- 				then iterate inventory_tile_loop;
+-- 			end if;
+-- 			set _inventory_tile = (select tile_id from tile where x = _x and y = _y and tile_type = "inventory" and owner_id = _chest_id);
+-- 			leave inventory_tile_loop;	
+-- 		end loop inventory_tile_loop;
 		
 		-- create the new item
 		insert into entity (name, health, attack, defense, healing, entity_type, owner_id, tile_id, is_equipped)
@@ -388,7 +500,7 @@ begin
 		set _items_created = _items_created + 1;
 	end while;
 
-	call UpdateEntityInventory(_chest_id);
+	-- call UpdateEntityInventory(_chest_id);
 	
 	-- might need to return the entity_id into an out variable or as a select
 end //
@@ -402,21 +514,21 @@ delimiter ;
 --  |___/ .__/\__,_|\_/\_/|_||_| |_|  |_\___/_||_/__/\__\___|_|    \___|_||_\___/__/\__|
 --      |_|                                                                             
 -- 
-drop procedure if exists SpawnMonsterChest;
-delimiter //
-create procedure SpawnMonsterChest(in _tile_id int)
-begin
-	
-	declare _item_total int;
-	
-	insert into entity (entity_type, tile_id)
-	values ("chest", _tile_id);
-	
-
-	set _item_total = ceil(rand() *5);
-	-- might need to return the entity_id into an out variable or as a select
-end //
-delimiter ;
+-- drop procedure if exists SpawnMonsterChest;
+-- delimiter //
+-- create procedure SpawnMonsterChest(in _tile_id int)
+-- begin
+-- 	
+-- 	declare _item_total int;
+-- 	
+-- 	set autocommit = off;
+-- 	start transaction;
+-- 		insert into entity (entity_type, tile_id)
+-- 		values ("chest", _tile_id);
+-- 	commit;
+-- 
+-- end //
+-- delimiter ;
 
 
 
@@ -437,7 +549,6 @@ begin
 	declare _attack int;
 	declare _defense int;
 	declare _healing int;
-	declare _current_health int;
 	
 	declare _type_mod int ;
 	declare _monster_type varchar(50) default "Goblin ";
@@ -456,7 +567,7 @@ begin
 	set _attack = pow(_distance, 1.25) / 5;
 	set _defense = pow(_distance, 1.25) / 5;
 	set _healing = pow(_distance, 1.25) / 10;
-	set _current_health = ceil((rand() * (1.3 - 0.7) + 0.7) * _health);
+	
 
 
 	if _type_mod = 1 then
@@ -479,18 +590,21 @@ begin
     set _tier = CalculateTier(_distance);
 	
 
-	-- create the new monster
-	insert into entity (name, health, current_health, attack, defense, healing, entity_type, tile_id)
-	values (
-		concat(_monster_type, _tier),
-		_current_health,
-		_current_health,
-		ceil((rand() * (1.3 - 0.7) + 0.7) * _attack),
-		ceil((rand() * (1.3 - 0.7) + 0.7) * _defense),
-		ceil((rand() * (1.3 - 0.7) + 0.7) * _healing),
-		"monster",
-		_tile_id
-	);
+	set autocommit = off;
+	start transaction;
+		-- create the new monster
+		insert into entity (name, health, damage_taken, attack, defense, healing, entity_type, tile_id)
+		values (
+			concat(_monster_type, _tier),
+			_health,
+			0,
+			ceil((rand() * (1.3 - 0.7) + 0.7) * _attack),
+			ceil((rand() * (1.3 - 0.7) + 0.7) * _defense),
+			ceil((rand() * (1.3 - 0.7) + 0.7) * _healing),
+			"monster",
+			_tile_id
+		);
+	commit;
 end //
 delimiter ;
 
@@ -527,7 +641,9 @@ create procedure GetAllPlayers()
 begin
 	
 	select username
-	from account;
+	from account a
+	join entity e 
+	on a.account_id = e.account_id;
 	
 end //
 delimiter ;
@@ -546,7 +662,8 @@ create procedure GetLeaderboard()
 begin
 	
 	select concat(username, ': ', highscore)
-	from account;
+	from account
+	order by highscore desc;
 	
 end //
 delimiter ;
@@ -567,7 +684,8 @@ begin
 	select concat('<',time(m.sent_time),'> ',a.username,': ', message) as message
 	from message m
 	join account a
-	on m.account_id = a.account_id;
+	on m.account_id = a.account_id
+    order by sent_time asc ;
 	
 end //
 delimiter ;
@@ -584,9 +702,12 @@ delimiter //
 create procedure SendMessage(in _account_id int, in _message varchar(500))
 begin
 	
-insert into message (account_id, message, sent_time)
-values (_account_id, _message, current_timestamp());	
-	
+	set autocommit = off;
+	start transaction;
+		insert into message (account_id, message, sent_time)
+		values (_account_id, _message, current_timestamp());	
+	commit;
+
 end //
 delimiter ;
 
@@ -629,13 +750,53 @@ begin
 		x >= _x - _width &&
 		x <= _x + _width &&
 		y >= _y - _height &&
+		y <= _y + _height  ||
+		tile_type = 'exit' &&
+		x >= _x - _width &&
+		x <= _x + _width &&
+		y >= _y - _height &&
 		y <= _y + _height 
 	order by x desc, y asc;
 
 end //
 delimiter ;
 
+drop procedure if exists GetPlayerByAccUsername;
+delimiter //
+create procedure GetPlayerByAccUsername(in _username varchar(50))
+begin
+	
+	declare _accountId int;
+	declare _playerId int;
 
+	select  e.entity_id 
+		into _playerId
+	from account a 
+		join entity e
+		on e.account_id = a.account_id 
+		where a.username = _username;
+
+	if isnull(_playerId) then
+	
+		select  a.account_id 
+			into _accountId
+		from account a 
+			where a.username = _username;
+		
+		call createplayer(_accountId);
+		
+	end if;
+	
+	
+		select *
+		from entity e 
+			join account a on a.account_id = e.account_id 
+			where a.username = _username;
+
+
+	
+end //
+delimiter ; 
 
    
 drop procedure if exists GetAllEntities; -- excluding items
@@ -652,21 +813,9 @@ begin
 end //
 delimiter ;  
 
-drop procedure if exists GetPlayerByAccUsername; -- excluding items
-delimiter //
-create procedure GetPlayerByAccUsername(in _username varchar(50))
-begin
-	
-	select *
-	from entity e 
-	join account a on a.account_id = e.account_id 
-	where a.username = _username;
+ 
 
-	
-end //
-delimiter ;  
-
-drop procedure if exists MovePlayer; -- excluding items
+drop procedure if exists MovePlayer; 
 delimiter //
 create procedure MovePlayer(in _target_tile int, in _player_id int)
 begin
@@ -682,7 +831,7 @@ end //
 delimiter ; 
 
 
-drop procedure if exists MoveMonsterNPC; -- excluding items
+drop procedure if exists MoveMonsterNPC;
 delimiter //
 create procedure MoveMonsterNPC(in p_monster_id int)
 begin
@@ -730,7 +879,7 @@ delimiter ;
 
 
 
-drop procedure if exists GetEntityInventory; -- excluding items
+drop procedure if exists GetEntityInventory; 
 delimiter //
 create procedure GetEntityInventory(in _entity_id int)
 begin
@@ -745,7 +894,7 @@ begin
 end //
 delimiter ; 
 
-drop procedure if exists GetEntityInventoryTiles; -- excluding items
+drop procedure if exists GetEntityInventoryTiles; 
 delimiter //
 create procedure GetEntityInventoryTiles(in _entity_id int)
 begin
@@ -833,6 +982,388 @@ begin
 	end if;
 
 		commit;
+
+end //
+delimiter ; 
+
+
+
+
+drop procedure if exists TransferItem;
+delimiter //
+create procedure TransferItem(in _item_id int, in _player_id int)
+begin
+	
+	-- transfer this code to a function and use in the item spawning
+	declare new_tile int;
+	select t.tile_id 
+		into new_tile
+	from tile t 
+		where t.owner_id = _player_id 
+		and t.tile_id not in (
+			select t2.tile_id
+			from tile t2
+				join entity e 
+					on t2.owner_id = e.entity_id 
+				join entity e2 
+					on e2.tile_id = t2.tile_id 
+				where e.entity_id = _player_id
+			)
+		order by rand()
+		limit 1;
+
+	set autocommit = off;
+	start transaction;
+
+		update entity 
+		set tile_id = new_tile, owner_id = _player_id
+		where entity_id = _item_id;
+
+	commit;
+
+end //
+delimiter ; 
+
+
+
+drop procedure if exists DamageEntity;
+delimiter //
+create procedure DamageEntity(in _attacker_id int, in _defender_id int)
+begin
+	
+	-- get effective health for both
+	-- get total attack for both
+	-- get total defense for both
+	-- for both entities
+		-- if defense - attack is positive
+		-- 		health - remainder
+		-- 		update health value to reflect damage dealt.
+	
+	declare defender_health int;
+	declare defender_defense int;
+	declare defender_attack int;
+	declare defender_damage_taken int;
+
+	declare attacker_health int;
+	declare attacker_defense int;
+	declare attacker_attack int;
+	declare attacker_damage_taken int;
+
+
+	select sum(health), sum(attack), sum(defense)
+		into defender_health, defender_attack, defender_defense
+	from entity e 
+		where e.entity_id = _defender_id
+		or (is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _defender_id
+				));
+			
+	
+	select sum(health), sum(attack), sum(defense)
+		into attacker_health, attacker_attack, attacker_defense
+	from entity e 
+		where e.entity_id =	_attacker_id
+		or (is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _attacker_id
+				));
+			
+			
+	
+	
+	
+	set autocommit = off;
+	start transaction;
+
+		if (attacker_attack > defender_defense / 2) then
+		
+			update entity 
+			set damage_taken = damage_taken + attacker_attack - (defender_defense /2)
+			where entity_id = _defender_id;
+			
+		end if;
+	
+		if (defender_attack > attacker_defense / 2) then
+		
+			update entity 
+			set damage_taken = damage_taken + defender_attack - (attacker_defense /2)
+			where entity_id = _attacker_id;
+			
+		end if;
+		
+		-- call CheckEnti
+	commit;
+	call CheckEntityStatus(_attacker_id);
+	call CheckEntityStatus(_defender_id);
+end //
+delimiter ; 
+
+
+
+drop procedure if exists GetPlayerStats;
+delimiter //
+create procedure GetPlayerStats(in _player_id int)
+begin
+	
+
+	select sum(health), sum(attack), sum(defense), sum(healing), sum(damage_taken)
+	from entity e 
+		where entity_id = _player_id or
+		(is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _player_id
+				));
+
+	call checkentitystatus(_player_id);
+end //
+delimiter ; 
+
+
+
+drop procedure if exists CheckEntityStatus;
+delimiter //
+create procedure CheckEntityStatus(in _entity_id int)
+begin
+	
+	declare entity_health int;
+	declare entity_damage int;
+
+
+	select sum(health), sum(damage_taken)
+		into entity_health, entity_damage
+	from entity e 
+		where entity_id = _entity_id or
+		(is_equipped = true
+		and e.tile_id in (
+				select t2.tile_id
+				from tile t2
+					join entity e 
+						on t2.owner_id = e.entity_id 
+					join entity e2 
+						on e2.tile_id = t2.tile_id 
+					where e.entity_id = _entity_id
+				));
+	
+			
+	if entity_damage >= entity_health then
+		call KillEntity(_entity_id);
+	end if;
+			
+			
+end //
+delimiter ; 
+
+drop procedure if exists KillEntity;
+delimiter //
+create procedure KillEntity(in pEntityId int)
+begin
+	
+	declare _tileId int;
+	declare _entityType varchar(50);
+	declare _accountId int;
+
+
+
+	select entity_type, tile_id
+		into _entityType, _tileId
+	from entity
+		where entity_id = pEntityId;
+	
+	select _entityType, _tileId;
+	if (_entityType = "monster") then
+		set autocommit = off;
+		start transaction;
+			delete from entity where entity_id = pEntityId;
+		commit;	
+	
+		-- call spawnmonsterchest(tile_id);
+	
+	elseif (_entityType = "player") then
+		select account_id
+			into _accountId
+		from entity 
+			where entity_id = pEntityId;
+			
+		set autocommit = off;
+		start transaction;
+			delete from entity where entity_id = pEntityId;
+		commit;	
+	
+		
+		call createplayer(_accountId);
+	end if;
+
+			
+end //
+delimiter ; 
+
+
+
+drop procedure if exists PlayerWin;
+delimiter //
+create procedure PlayerWin(in playerId int)
+begin
+	
+	declare _distance int;
+
+	select ceil(sqrt(pow(abs(t.x), 2) + pow(abs(t.x), 2)))
+		into _distance
+	from tile t 
+		join entity e 
+		on e.tile_id = t.tile_id 
+		where e.entity_id = playerId;
+
+	set autocommit = off;
+	start transaction;
+
+		update account
+		join entity on entity.account_id = account.account_id 
+		set account.highscore = if (_distance < account.highscore, account.highscore, _distance)
+		where entity.entity_id = playerId;
+	
+	commit;
+
+	call killentity(playerID);
+			
+end //
+delimiter ; 
+
+
+
+drop procedure if exists ResetGame;
+delimiter //
+create procedure ResetGame()
+begin
+	
+
+
+	set autocommit = off;
+	start transaction;
+
+		delete from entity;
+		delete from tile;
+		delete from message;
+		update account set highscore = 0;
+	
+	
+	commit;
+
+	
+	call GenerateMap(40, 40);
+			
+end //
+delimiter ; 
+
+
+
+drop procedure if exists RegenerateMap;
+delimiter //
+create procedure RegenerateMap()
+begin
+	
+	declare _homeTile int;
+
+	set autocommit = off;
+	start transaction;
+
+		delete from entity where entity_type = 'monster' or entity_type = 'chest';
+	
+		delete from tile 
+		where tile_type != 'inventory';
+	
+		delete tile 
+		from tile
+		join entity 
+		on entity.entity_id = tile.owner_id 
+		where entity.entity_type != 'player';
+	
+	
+	commit;
+
+	
+	call GenerateMap(40, 40);
+
+
+	select tile_id 
+		into _homeTile
+	from tile
+		where x = 0 
+		and y = 0 
+		and tile_type = "ground";
+	
+	
+	update entity
+	set tile_id = _homeTile
+	where entity_type = 'player';
+			
+end //
+delimiter ; 
+
+
+
+drop procedure if exists DeleteAccount;
+delimiter //
+create procedure DeleteAccount(in _account_id int)
+begin
+	
+	set autocommit = off;
+	start transaction;
+		select _account_id;
+		delete from account 
+		where account_id = _account_id;
+	
+	
+	commit;
+
+end //
+delimiter ; 
+
+
+
+drop procedure if exists MovePlayerHome;
+delimiter //
+create procedure MovePlayerHome(in _username varchar(50))
+begin
+	declare _homeTile int;
+
+
+	select tile_id 
+		into _homeTile
+	from tile
+		where x = 0 
+		and y = 0 
+		and tile_type = "ground";
+
+	set autocommit = off;
+	start transaction;
+
+		update entity 
+		join account 
+			on entity.account_id = account.account_id 
+		set entity.tile_id = _homeTile
+		where account.username = _username;
+	
+	
+	commit;
 
 end //
 delimiter ; 

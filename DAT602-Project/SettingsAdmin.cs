@@ -12,19 +12,14 @@ namespace Battlespire
 {
     public partial class SettingsAdmin : Form
     {
-        private Game _game;
+        private Mainform _game;
 
-        public SettingsAdmin(Game game)
+        public SettingsAdmin(Mainform game)
         {
             _game = game;
             InitializeComponent();
         }
 
-        private void update_button_Click(object sender, EventArgs e)
-        {
-            AdminDAO db_connection = new();
-            UpdateListbox(player_box, db_connection.GetAllPlayers());
-        }
 
         private void UpdateListbox(ListBox listbox, List<String> list)
         {
@@ -39,6 +34,33 @@ namespace Battlespire
         private void SettingsAdmin_FormClosed(object sender, FormClosedEventArgs e)
         {
             _game.Show();
+        }
+
+        private void resetGameButton_Click(object sender, EventArgs e)
+        {
+            AdminDAO db_connection = new();
+            db_connection.ResetGame();
+            Game.Mainform.ReloadGame();
+        }
+
+        private void SettingsAdmin_Load(object sender, EventArgs e)
+        {
+            AdminDAO db_connection = new();
+            UpdateListbox(player_box, db_connection.GetAllPlayers());
+
+        }
+
+        private void moveHomeButton_Click(object sender, EventArgs e)
+        { 
+            AdminDAO db_connection = new();
+            db_connection.MoveToHome(player_box.SelectedItem.ToString());
+            Game.Mainform.ReloadGame();
+        }
+
+        private void regenerateMapButton_Click(object sender, EventArgs e)
+        {
+            AdminDAO db_connection = new();
+            db_connection.RegenerateMap();
         }
     }
 }
