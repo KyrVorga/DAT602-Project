@@ -13,6 +13,20 @@ begin
 
 	declare _account_id int;
 
+
+	declare exit handler for sqlexception
+		begin
+		get diagnostics condition 1 @sqlstate = RETURNED_SQLSTATE, 
+		@errornumber = MYSQL_ERRNO, @text = MESSAGE_TEXT;
+		set @full_error = concat("Error ", @errornumber, " (", @sqlstate, "): ", @text);
+		select @full_error;
+	end;
+
+ 	if (_username is null or _username = '') or  (_email is null or _email = '')  or (_password is null or _password = '') 
+		then signal sqlstate '45000'
+			set message_text = 'One or multiple of the arguments were null.', mysql_errno = 1000;
+	end if;
+
 	set autocommit = off;
 	start transaction;
 	case
@@ -20,12 +34,16 @@ begin
 			select email
 			from account
 		)
-		then select 'Error' as message;
+		then 
+			signal sqlstate '45000'
+				set message_text = 'The Email already exists.', mysql_errno = 1000;
 		when _username in (
 			select username
 			from account
 		)
-		then select 'Error' as message;
+		then
+			signal sqlstate '45000'
+				set message_text = 'The Username already exists.', mysql_errno = 1000;
 		else insert into account (username, email, password)
 	    values (_username, _email, _password);
 	end case;
@@ -43,8 +61,14 @@ end //
 delimiter ;     
 
 
-
-
+if _username in (
+	select username
+	from account
+	)
+	then 
+		signal sqlstate '45000'
+			set message_text = 'The Email already exists.', mysql_errno = 1000;
+end if;
 
 --   _              _          _                      _   
 --  | |   ___  __ _(_)_ _     /_\  __ __ ___ _  _ _ _| |_ 
@@ -121,13 +145,14 @@ drop procedure if exists GenerateMap;
 delimiter //
 create procedure GenerateMap( in _width int, in _height int)
 begin
-declare _x int default _width * -1;
-declare _y int default _height * -1;
-declare _type varchar(50) default "ground";
-declare _type_mod int;
-declare _total_entities int default _width + _height;
-declare _index int default 0;
-declare _tile int;
+	
+	declare _x int default _width * -1;
+	declare _y int default _height * -1;
+	declare _type varchar(50) default "ground";
+	declare _type_mod int;
+	declare _total_entities int default _width + _height;
+	declare _index int default 0;
+	declare _tile int;
 
 
 	set autocommit = off;
