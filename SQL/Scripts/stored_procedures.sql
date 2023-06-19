@@ -16,37 +16,59 @@ begin
 
 	declare exit handler for sqlexception
 		begin
-		get diagnostics condition 1 @sqlstate = RETURNED_SQLSTATE, 
-		@errornumber = MYSQL_ERRNO, @text = MESSAGE_TEXT;
-		set @full_error = concat("Error ", @errornumber, " (", @sqlstate, "): ", @text);
-		select @full_error;
+			
+		get diagnostics condition 1
+			@sqlstate = returned_sqlstate, 
+			@errornumber = mysql_errno,
+			@text = message_text;
+	
+		rollback;
+	
+		if @sqlstate = "45000" then
+			resignal;
+		else
+			set @full_error = concat("Error: ", @text);
+			signal sqlstate '45000'
+				set message_text = @full_error, mysql_errno = @errornumber;
+		end if;
 	end;
+
+
+-- 
+--     declare exit handler for sqlexception
+--     begin
+--         rollback;
+--         resignal; 
+--     end;
 
  	if (_username is null or _username = '') or  (_email is null or _email = '')  or (_password is null or _password = '') 
 		then signal sqlstate '45000'
-			set message_text = 'One or multiple of the arguments were null.', mysql_errno = 1000;
+			set message_text = 'Error: One or multiple of the arguments were null.', mysql_errno = 1000;
 	end if;
 
 	set autocommit = off;
 	start transaction;
-	case
-		when _email in (
-			select email
-			from account
-		)
-		then 
-			signal sqlstate '45000'
-				set message_text = 'The Email already exists.', mysql_errno = 1000;
-		when _username in (
-			select username
-			from account
-		)
-		then
-			signal sqlstate '45000'
-				set message_text = 'The Username already exists.', mysql_errno = 1000;
-		else insert into account (username, email, password)
-	    values (_username, _email, _password);
-	end case;
+	
+		insert into accountt (username, email, password) values ('a', 'a', 'a');
+	
+		case
+			when _email in (
+				select email
+				from account
+			)
+			then 
+				signal sqlstate '45000'
+					set message_text = 'Error: The Email already exists.', mysql_errno = 1000;
+			when _username in (
+				select username
+				from account
+			)
+			then
+				signal sqlstate '45000'
+					set message_text = 'Error: The Username already exists.', mysql_errno = 1000;
+			else insert into account (username, email, password)
+		    values (_username, _email, _password);
+		end case;
 	commit;
 	
 	select account_id 
@@ -56,19 +78,12 @@ begin
 	
 	call createplayer(_account_id);
 
-	select 'User Created' as message;
+	select 'Success: User Created' as message;
 end //
 delimiter ;     
 
 
-if _username in (
-	select username
-	from account
-	)
-	then 
-		signal sqlstate '45000'
-			set message_text = 'The Email already exists.', mysql_errno = 1000;
-end if;
+
 
 --   _              _          _                      _   
 --  | |   ___  __ _(_)_ _     /_\  __ __ ___ _  _ _ _| |_ 

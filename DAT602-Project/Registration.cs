@@ -22,23 +22,26 @@ namespace Battlespire
 
         private void register_button_Click(object sender, EventArgs e)
         {
-            string username = username_input.Text;
-            string password = password_input.Text;
-            string email = email_input.Text;
-
-            LoginAndRegistrationDAO db_connection = new();
-
-            string accountCreationResult = db_connection.RegisterUser(username, password, email);
-            if (accountCreationResult.StartsWith("Error"))
+            try
             {
-                MessageBox.Show(string.Format("Account creation failed, please try again. \n{0}", accountCreationResult));
+                string username = username_input.Text;
+                string password = password_input.Text;
+                string email = email_input.Text;
+
+                LoginAndRegistrationDAO db_connection = new();
+
+                string accountCreationResult = db_connection.RegisterUser(username, password, email);
+                if (accountCreationResult.StartsWith("Success"))
+                {
+                    MessageBox.Show("Account created successfully.");
+                    this.Hide();
+                    Login login = new Login();
+                    login.Show();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Account created successfully.");
-                this.Hide();
-                Login login = new Login();
-                login.Show();
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
 

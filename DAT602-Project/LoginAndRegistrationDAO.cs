@@ -49,11 +49,12 @@ namespace Battlespire
 
                 DataSet register_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call CreateAccount(@username, @email, @password)", procedure_params.ToArray());
 
+
                 return register_result.Tables[0].Rows[0].ItemArray[0].ToString();
             }
-            catch (Exception ex)
+            catch (MySqlException ex)
             {
-                return string.Format("Something went wrong.\n{0}\n{1}", ex.Message, ex.StackTrace);
+                throw ex;
             }
         }
 
