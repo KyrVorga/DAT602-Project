@@ -15,13 +15,17 @@ begin
 
 
 	declare exit handler for sqlexception
- 		begin
-  		get diagnostics condition 1 @sqlstate = RETURNED_SQLSTATE, 
-   		@errornumber = MYSQL_ERRNO, @text = MESSAGE_TEXT;
-  		set @full_error = concat("Error ", @errornumber, " (", @sqlstate, "): ", @text);
-  		select @full_error;
- 	end;
+		begin
+		get diagnostics condition 1 @sqlstate = RETURNED_SQLSTATE, 
+		@errornumber = MYSQL_ERRNO, @text = MESSAGE_TEXT;
+		set @full_error = concat("Error ", @errornumber, " (", @sqlstate, "): ", @text);
+		select @full_error;
+	end;
 
+ 	if (_username is null or _username = '') or  (_email is null or _email = '')  or (_password is null or _password = '') 
+		then signal sqlstate '45000'
+			set message_text = 'One or multiple of the arguments were null.', mysql_errno = 1000;
+	end if;
 
 	set autocommit = off;
 	start transaction;
@@ -57,8 +61,14 @@ end //
 delimiter ;     
 
 
-
-
+if _username in (
+	select username
+	from account
+	)
+	then 
+		signal sqlstate '45000'
+			set message_text = 'The Email already exists.', mysql_errno = 1000;
+end if;
 
 --   _              _          _                      _   
 --  | |   ___  __ _(_)_ _     /_\  __ __ ___ _  _ _ _| |_ 

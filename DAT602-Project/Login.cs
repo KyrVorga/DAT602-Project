@@ -13,15 +13,8 @@ namespace Battlespire
 {
     public partial class Login : Form
     {
-        private Registration _registration_form;
         public Login()
         {
-            InitializeComponent();
-        }
-        public Login(Registration? register)
-            : this()
-        {
-            _registration_form = register;
             InitializeComponent();
         }
 
@@ -49,7 +42,7 @@ namespace Battlespire
         private void redirect_label_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             this.Hide();
-            Registration register = new Registration(this);
+            Registration register = new Registration();
             register.Show();
         }
     }

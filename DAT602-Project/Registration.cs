@@ -15,15 +15,8 @@ namespace Battlespire
     public partial class Registration : Form
     {
 
-        private Login _login_form;
         public Registration()
         {
-            InitializeComponent();
-        }
-        public Registration(Login? login)
-            : this()
-        {
-            _login_form = login;
             InitializeComponent();
         }
 
@@ -35,16 +28,16 @@ namespace Battlespire
 
             LoginAndRegistrationDAO db_connection = new();
 
-
-            if (db_connection.RegisterUser(username, password, email) == "Error")
+            string accountCreationResult = db_connection.RegisterUser(username, password, email);
+            if (accountCreationResult.StartsWith("Error"))
             {
-                MessageBox.Show("Account creation failed, please try again.");
+                MessageBox.Show(string.Format("Account creation failed, please try again. \n{0}", accountCreationResult));
             }
             else
             {
                 MessageBox.Show("Account created successfully.");
                 this.Hide();
-                Login login = new Login(this);
+                Login login = new Login();
                 login.Show();
             }
         }
@@ -52,7 +45,7 @@ namespace Battlespire
         private void redirect_label_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             this.Hide();
-            Login login = new Login(this);
+            Login login = new Login();
             login.Show();
         }
     }
