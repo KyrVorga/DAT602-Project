@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace Battlespire
 {
@@ -24,36 +25,62 @@ namespace Battlespire
         }
         public void UpdateBoard()
         {
-            Chest.Inventory.Items = Chest.Inventory.GetItems();
-            Chest.Inventory.Tiles = Chest.Inventory.GetTiles();
+            try
+            {
+                Chest.Inventory.Items = Chest.Inventory.GetItems();
+                Chest.Inventory.Tiles = Chest.Inventory.GetTiles();
 
-            Game.UpdateInventoryBoard(Board, Chest.Inventory.Tiles, Chest.Inventory.Items);
+                Game.UpdateInventoryBoard(Board, Chest.Inventory.Tiles, Chest.Inventory.Items);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
 
         public void GenerateBoard(List<Tile> tiles, int chestId, int xStart, int yStart, int xEnd, int yEnd)
         {
-
-            Game.GenerateBoard(inventory_board, tiles, chestId, xStart, yStart, xEnd, yEnd);
+            try
+            {
+                Game.GenerateBoard(inventory_board, tiles, chestId, xStart, yStart, xEnd, yEnd);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         private void ChestTransferForm_Load(object sender, EventArgs e)
         {
-            if (Chest != null)
+            try
             {
-
-                GenerateBoard(Chest.Inventory.Tiles, Chest.EntityId, 0, 0, 8, 4);
-                UpdateBoard();
+                if (Chest != null)
+                {
+                    GenerateBoard(Chest.Inventory.Tiles, Chest.EntityId, 0, 0, 8, 4);
+                    UpdateBoard();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
 
         private void take_button_Click(object sender, EventArgs e)
         {
-            if (Game.InitialTile != null)
+            try
             {
-                Item item = (Item)Chest.Inventory.Items.Single(item => item.TileId == Game.InitialTile.Id);
-                Game.TransferItem(item);
-                UpdateBoard();
+                if (Game.InitialTile != null)
+                {
+                    Item item = (Item)Chest.Inventory.Items.Single(item => item.TileId == Game.InitialTile.Id);
+                    Game.TransferItem(item);
+                    UpdateBoard();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
     }

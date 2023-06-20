@@ -8,6 +8,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 
 namespace Battlespire
 {
@@ -25,16 +26,28 @@ namespace Battlespire
 
         public void UpdateBoard()
         {
+            try
+            {
+                Game.UpdateInventoryBoard(Board, Player.Inventory.Tiles, Player.Inventory.Items);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
             Player.Inventory.Items = Player.Inventory.GetItems();
             Player.Inventory.Tiles = Player.Inventory.GetTiles();
-
-            Game.UpdateInventoryBoard(Board, Player.Inventory.Tiles, Player.Inventory.Items);
         }
 
         public void GenerateBoard(List<Tile> tiles, int playerId, int xStart, int yStart, int xEnd, int yEnd)
         {
-
-            Game.GenerateBoard(inventory_board, tiles, playerId, xStart, yStart, xEnd, yEnd);
+            try
+            {
+                Game.GenerateBoard(inventory_board, tiles, playerId, xStart, yStart, xEnd, yEnd);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         public void UpdateHealthLabel(decimal value)
@@ -62,24 +75,37 @@ namespace Battlespire
 
         private void equip_button_Click(object sender, EventArgs e)
         {
-            Player.Inventory.EquipItem(Game.InitialTile);
-            Game.InitialTile = null;
-            Player.CalculateStats();
-            Player.UpdateStats();
-            UpdateBoard();
+            try
+            {
+                Player.Inventory.EquipItem(Game.InitialTile);
+                Game.InitialTile = null;
+                Player.CalculateStats();
+                Player.UpdateStats();
+                UpdateBoard();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         private void InventoryForm_Load(object sender, EventArgs e)
         {
-
-            if (Player != null)
+            try
             {
-                player_name_label.Text = Game.PlayerName;
-                Player.CalculateStats();
-                Player.UpdateStats();
+                if (Player != null)
+                {
+                    player_name_label.Text = Game.PlayerName;
+                    Player.CalculateStats();
+                    Player.UpdateStats();
 
-                GenerateBoard(Player.Inventory.Tiles, Player.EntityId, 0, 0, 8, 4);
-                UpdateBoard();
+                    GenerateBoard(Player.Inventory.Tiles, Player.EntityId, 0, 0, 8, 4);
+                    UpdateBoard();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
     }

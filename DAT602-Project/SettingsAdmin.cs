@@ -23,44 +23,85 @@ namespace Battlespire
 
         private void UpdateListbox(ListBox listbox, List<String> list)
         {
-            listbox.Items.Clear();
-
-            list.ForEach(item =>
+            try
             {
-                listbox.Items.Add(item);
-            });
+                listbox.Items.Clear();
+
+                list.ForEach(item =>
+                {
+                    listbox.Items.Add(item);
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         private void SettingsAdmin_FormClosed(object sender, FormClosedEventArgs e)
         {
-            _game.Show();
+            try
+            {
+                _game.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         private void resetGameButton_Click(object sender, EventArgs e)
         {
-            AdminDAO db_connection = new();
-            db_connection.ResetGame();
-            Game.Mainform.ReloadGame();
+            try
+            {
+                AdminDAO db_connection = new();
+                db_connection.ResetGame();
+                Game.Mainform.ReloadGame();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         private void SettingsAdmin_Load(object sender, EventArgs e)
         {
-            AdminDAO db_connection = new();
-            UpdateListbox(player_box, db_connection.GetAllPlayers());
-
+            try
+            {
+                AdminDAO db_connection = new();
+                UpdateListbox(player_box, db_connection.GetAllPlayers());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         private void moveHomeButton_Click(object sender, EventArgs e)
-        { 
-            AdminDAO db_connection = new();
-            db_connection.MoveToHome(player_box.SelectedItem.ToString());
-            Game.Mainform.ReloadGame();
+        {
+            try
+            {
+                AdminDAO db_connection = new();
+                db_connection.MoveToHome(player_box.SelectedItem.ToString());
+                Game.Mainform.ReloadGame();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         private void regenerateMapButton_Click(object sender, EventArgs e)
         {
-            AdminDAO db_connection = new();
-            db_connection.RegenerateMap();
+            try
+            {
+                AdminDAO db_connection = new();
+                db_connection.RegenerateMap();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
     }
 }

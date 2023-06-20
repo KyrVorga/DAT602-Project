@@ -19,14 +19,21 @@ namespace Battlespire
 
         public override void Tile_Click(object sender, EventArgs e)
         {
-            if (Game.InitialTile != null)
+            try
             {
-                Game.TargetTile = this;
-                Game.MoveItem(Game.CurrentPlayer);
+                if (Game.InitialTile != null)
+                {
+                    Game.TargetTile = this;
+                    Game.MoveItem(Game.CurrentPlayer);
+                }
+                else
+                {
+                    Game.InitialTile = this;
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Game.InitialTile = this;
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
 

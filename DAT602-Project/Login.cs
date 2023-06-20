@@ -20,22 +20,25 @@ namespace Battlespire
 
         private void login_button_Click(object sender, EventArgs e)
         {
-            string username = username_input.Text;
-            string password = password_input.Text;
-
-            LoginAndRegistrationDAO db_connection = new();
-
-
-            if (db_connection.LoginUser(username, password))
+            try
             {
-                // MessageBox.Show("Logged in successfully.");
-                this.Hide();
-                Mainform game = new Mainform(this, username);
-                game.Show();
+                string username = username_input.Text;
+                string password = password_input.Text;
+
+                LoginAndRegistrationDAO db_connection = new();
+
+                string procedureResult = db_connection.LoginUser(username, password);
+
+                if (procedureResult.StartsWith("Success:"))
+                {
+                    this.Hide();
+                    Mainform game = new Mainform(this, username);
+                    game.Show();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Login failed, please try again.");
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
 

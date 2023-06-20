@@ -52,15 +52,17 @@ namespace Battlespire
 
                 return register_result.Tables[0].Rows[0].ItemArray[0].ToString();
             }
-            catch (MySqlException ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
         }
 
-        public Boolean LoginUser(String username_param, String password_param)
+        public string LoginUser(string username_param, string password_param)
         {
-            List<MySqlParameter> procedure_params = new()
+            try
+            {
+                List<MySqlParameter> procedure_params = new()
                 {
                     new()
                     {
@@ -79,19 +81,17 @@ namespace Battlespire
 
                 };
 
-            DataSet auth_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call LoginAccount(@username, @password)", procedure_params.ToArray());
+                DataSet auth_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call LoginAccount(@username, @password)", procedure_params.ToArray());
 
 
-            DataRow auth_result_row = auth_result.Tables[0].Rows[0];
+                DataRow auth_result_row = auth_result.Tables[0].Rows[0];
 
-            string row_value = auth_result_row.ItemArray[0].ToString();
-            if (row_value == "Login succesful.")
-            {
-                return true;
+                return auth_result_row.ItemArray[0].ToString();
+               
             }
-            else
+            catch (Exception ex)
             {
-                return false;
+                throw ex;
             }
         }
     }

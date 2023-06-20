@@ -32,22 +32,29 @@ namespace Battlespire
         }
         public void EquipItem(Tile clickedTile)
         {
-            if (clickedTile != null)
+            try
             {
-
-                var query = from item in Items
-                            join tile in Tiles on item.TileId equals tile.Id
-                            where tile.Id == clickedTile.Id
-                            select new { item.EntityId };
-
-                foreach (var item in query)
+                if (clickedTile != null)
                 {
-                    if (item != null)
+
+                    var query = from item in Items
+                                join tile in Tiles on item.TileId equals tile.Id
+                                where tile.Id == clickedTile.Id
+                                select new { item.EntityId };
+
+                    foreach (var item in query)
                     {
-                       Game.DbConnection.EquipItem(OwnerId, item.EntityId);
+                        if (item != null)
+                        {
+                            Game.DbConnection.EquipItem(OwnerId, item.EntityId);
+                        }
                     }
+                    Items = GetItems();
                 }
-                Items = GetItems();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
             }
         }
     }

@@ -47,9 +47,16 @@ namespace Battlespire
 
         private void redirect_label_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            this.Hide();
-            Login login = new Login();
-            login.Show();
+            try
+            {
+                this.Hide();
+                Login login = new Login();
+                login.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
     }
 }

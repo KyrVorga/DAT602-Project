@@ -19,33 +19,40 @@ namespace Battlespire
 
         public override void Tile_Click(object sender, EventArgs e)
         {
-            if (Game.InitialTile != null)
+            try
             {
-                Game.TargetTile = this;
-                PictureBox pictureBox = (PictureBox)sender;
-                if (pictureBox != null)
+                if (Game.InitialTile != null)
                 {
-                    int chestId = Int32.Parse(pictureBox.Tag.ToString());
-                    // need to find the chest using the list of game tiles and entities, and the id of a tile belonging to the chest.
-                    var query = from entity in Game.Entities
-                                join tile in Game.Tiles on entity.TileId equals tile.Id
-                                where entity.EntityId == chestId
-                                select new { entity.EntityId, entity.TileId };
-
-                    foreach (var entity in query)
+                    Game.TargetTile = this;
+                    PictureBox pictureBox = (PictureBox)sender;
+                    if (pictureBox != null)
                     {
-                        Chest chest = (Chest)Game.Entities.Single(entity => entity.EntityId == chestId);
-                        if (chest != null)
-                        {
-                            Game.MoveItem(chest);
-                        }
-                    }
+                        int chestId = Int32.Parse(pictureBox.Tag.ToString());
+                        // need to find the chest using the list of game tiles and entities, and the id of a tile belonging to the chest.
+                        var query = from entity in Game.Entities
+                                    join tile in Game.Tiles on entity.TileId equals tile.Id
+                                    where entity.EntityId == chestId
+                                    select new { entity.EntityId, entity.TileId };
 
+                        foreach (var entity in query)
+                        {
+                            Chest chest = (Chest)Game.Entities.Single(entity => entity.EntityId == chestId);
+                            if (chest != null)
+                            {
+                                Game.MoveItem(chest);
+                            }
+                        }
+
+                    }
+                }
+                else
+                {
+                    Game.InitialTile = this;
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Game.InitialTile = this;
+                throw ex;
             }
         }
     }
