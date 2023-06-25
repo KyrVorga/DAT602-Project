@@ -22,14 +22,27 @@ namespace Battlespire
 
         private void SettingsUser_FormClosed(object sender, FormClosedEventArgs e)
         {
-            _game.Show();
+            try
+            {
+                _game.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         private void deleteAccountButton_Click(object sender, EventArgs e)
         {
-
-            AdminDAO db_connection = new();
-            db_connection.DeleteAccount();
+            try
+            {
+                AdminDAO db_connection = new();
+                db_connection.DeleteAccount();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
     }
 }

@@ -11,18 +11,25 @@ namespace Battlespire
 {
     internal class AdminDAO : DatabaseAccessObject
     {
-        public List<String> GetAllPlayers()
+        public List<string> GetAllPlayers()
         {
 
-            DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetAllPlayers();");
-
-            var player_list = new List<String>();
-            foreach (DataRow row in query_result.Tables[0].Rows)
+            try
             {
-                player_list.Add(row[0].ToString());
-            }
+                DataSet query_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call GetAllPlayers();");
 
-            return player_list;
+                var player_list = new List<string>();
+                foreach (DataRow row in query_result.Tables[0].Rows)
+                {
+                    player_list.Add(row[0].ToString());
+                }
+
+                return player_list;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
         public void ResetGame()
@@ -39,7 +46,7 @@ namespace Battlespire
                     new()
                     {
                         ParameterName = "@accountId",
-                        MySqlDbType = MySqlDbType.VarChar,
+                        MySqlDbType = MySqlDbType.Int32,
                         Value = Game.CurrentPlayer.AccountId
                     }
 
@@ -50,9 +57,8 @@ namespace Battlespire
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                throw ex;
             }
-
         }
 
         internal void MoveToHome(string username)
@@ -65,25 +71,31 @@ namespace Battlespire
                     {
                         ParameterName = "@username",
                         MySqlDbType = MySqlDbType.VarChar,
+                        Size = 50,
                         Value = username
                     }
 
                 };
 
                 MySqlHelper.ExecuteDataset(MySqlConnection, "call MovePlayerHome(@username)", procedure_params.ToArray());
-
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                throw ex;
             }
-
         }
 
         internal void RegenerateMap()
         {
-            MySqlHelper.ExecuteDataset(MySqlConnection, "call RegenerateMap()");
-            Game.Mainform.ReloadGame();
+            try
+            {
+                MySqlHelper.ExecuteDataset(MySqlConnection, "call RegenerateMap()");
+                Game.Mainform.ReloadGame();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
     }
 }

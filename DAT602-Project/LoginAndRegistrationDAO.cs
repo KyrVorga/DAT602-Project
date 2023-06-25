@@ -11,63 +11,87 @@ namespace Battlespire
     internal class LoginAndRegistrationDAO : DatabaseAccessObject
     {
 
-        public String RegisterUser(String username_param, String email_param, String password_param)
+        public string RegisterUser(string username_param, string email_param, string password_param)
         {
-            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
-
-            MySqlParameter username = new("@username", MySqlDbType.VarChar, 50)
+            try
             {
-                Value = username_param
-            };
-            procedure_params.Add(username);
 
-            MySqlParameter email = new("@email", MySqlDbType.VarChar, 100)
+                List<MySqlParameter> procedure_params = new()
+                {
+                    new()
+                    {
+                        ParameterName = "@username",
+                        MySqlDbType = MySqlDbType.VarChar,
+                        Size = 50,
+                        Value = username_param
+                    },
+                    new()
+                    {
+                        ParameterName = "@email",
+                        MySqlDbType = MySqlDbType.VarChar,
+                        Size = 100,
+                        Value = email_param
+                    },
+                    new()
+                    {
+                        ParameterName = "@password",
+                        MySqlDbType = MySqlDbType.VarChar,
+                        Size = 50,
+                        Value = password_param
+                    }
+
+                };
+
+                foreach ( var param in procedure_params.ToArray() )
+                {
+                    Console.WriteLine(param.Value);
+                }
+
+                DataSet register_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call CreateAccount(@username, @email, @password)", procedure_params.ToArray());
+
+
+                return register_result.Tables[0].Rows[0].ItemArray[0].ToString();
+            }
+            catch (Exception ex)
             {
-                Value = email_param
-            };
-            procedure_params.Add(email);
-
-            MySqlParameter password = new("@password", MySqlDbType.VarChar, 50)
-            {
-                Value = password_param
-            };
-            procedure_params.Add(password);
-
-            DataSet register_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call CreateAccount(@username, @email, @password)", procedure_params.ToArray());
-
-            // change to check for error using regex match. 
-            return register_result.Tables[0].Rows[0]["message"].ToString();
+                throw ex;
+            }
         }
 
-        public Boolean LoginUser(String username_param, String password_param)
+        public string LoginUser(string username_param, string password_param)
         {
-            List<MySqlParameter> procedure_params = new List<MySqlParameter>();
-
-            MySqlParameter username = new("@username", MySqlDbType.VarChar, 50)
+            try
             {
-                Value = username_param
-            };
-            procedure_params.Add(username);
+                List<MySqlParameter> procedure_params = new()
+                {
+                    new()
+                    {
+                        ParameterName = "@username",
+                        MySqlDbType = MySqlDbType.VarChar,
+                        Size = 50,
+                        Value = username_param
+                    },
+                    new()
+                    {
+                        ParameterName = "@password",
+                        MySqlDbType = MySqlDbType.VarChar,
+                        Size = 50,
+                        Value = password_param
+                    }
 
-            MySqlParameter password = new("@password", MySqlDbType.VarChar, 50)
-            {
-                Value = password_param
-            };
-            procedure_params.Add(password);
+                };
 
-            DataSet auth_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call LoginAccount(@username, @password)", procedure_params.ToArray());
+                DataSet auth_result = MySqlHelper.ExecuteDataset(DatabaseAccessObject.MySqlConnection, "call LoginAccount(@username, @password)", procedure_params.ToArray());
 
 
-            DataRow auth_result_row = auth_result.Tables[0].Rows[0];
+                DataRow auth_result_row = auth_result.Tables[0].Rows[0];
 
-            string row_value = auth_result_row.ItemArray[0].ToString();
-            if (row_value == "Login succesful.")
-            {
-                return true;
+                return auth_result_row.ItemArray[0].ToString();
+               
             }
-            else
+            catch (Exception ex)
             {
-                return false;
+                throw ex;
             }
         }
     }

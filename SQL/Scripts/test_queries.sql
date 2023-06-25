@@ -11,6 +11,20 @@ call getplayerbyaccusername("asdf")
 call CreatePlayer(11)
 call deleteaccount(1) 
 
+
+
+
+call createAccount('Rhylei','Rhylei1@aureate.dev', '');
+
+
+
+update account 
+	set attempts  = attempts + 1 
+	where username = 'asdf'
+
+
+
+
 select  a.account_id 
 		from account a 
 			join entity e
@@ -26,7 +40,8 @@ delete tile
 		from tile
 		join entity 
 		on entity.entity_id = tile.owner_id 
-		where entity.entity_type != 'player';
+		where entity.entity_type != 'player'
+		;
 
 
 	select entity_id, a.account_id 

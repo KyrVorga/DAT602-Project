@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace Battlespire
@@ -48,41 +49,48 @@ namespace Battlespire
 
         public static void GenerateBoard(Control panel, List<Tile> tiles, int ownerId, int xStart, int yStart, int xEnd, int yEnd)
         {
-            int tilesAccross = xEnd - xStart + 1;
-            int tilesVertical = yEnd - yStart + 1;
-            int tileBorder = 1 * tilesAccross;
-            int boardWidth = panel.Width;
-            int boardHeight = panel.Height;
-            int tileDimension = boardWidth / tilesAccross;
-            int tileWidth = boardWidth / tilesAccross;
-            int tileHeight = boardHeight / tilesVertical;
-            panel.Controls.Clear();
-
-
-            int index = 0;
-            for (int i = xStart; i <= xEnd; i++)
+            try
             {
-                for (int j = yStart; j <= yEnd; j++)
+                int tilesAccross = xEnd - xStart + 1;
+                int tilesVertical = yEnd - yStart + 1;
+                int tileBorder = 1 * tilesAccross;
+                int boardWidth = panel.Width;
+                int boardHeight = panel.Height;
+                int tileDimension = boardWidth / tilesAccross;
+                int tileWidth = boardWidth / tilesAccross;
+                int tileHeight = boardHeight / tilesVertical;
+                panel.Controls.Clear();
+
+
+                int index = 0;
+                for (int i = xStart; i <= xEnd; i++)
                 {
-                    PictureBox pictureBox = new();
-                    pictureBox.BackColor = Color.Gray;
-                    pictureBox.Tag = ownerId;
-                    if (xStart < 0 && yStart < 0)
+                    for (int j = yStart; j <= yEnd; j++)
                     {
-                        pictureBox.Width = tileWidth;
-                        pictureBox.Height = tileHeight;
-                        pictureBox.Location = new Point(boardWidth / 2 + i * (pictureBox.Width + 1), boardHeight / 2 + j * (pictureBox.Height + 1));
+                        PictureBox pictureBox = new();
+                        pictureBox.BackColor = Color.Gray;
+                        pictureBox.Tag = ownerId;
+                        if (xStart < 0 && yStart < 0)
+                        {
+                            pictureBox.Width = tileWidth;
+                            pictureBox.Height = tileHeight;
+                            pictureBox.Location = new Point(boardWidth / 2 + i * (pictureBox.Width + 1), boardHeight / 2 + j * (pictureBox.Height + 1));
+                        }
+                        else
+                        {
+                            pictureBox.Width = tileDimension;
+                            pictureBox.Height = tileDimension;
+                            pictureBox.Location = new Point(i * (pictureBox.Height + 1), j * (pictureBox.Width + 1));
+                        }
+                        pictureBox.Click += tiles[index].Tile_Click;
+                        panel.Controls.Add(pictureBox);
+                        index++;
                     }
-                    else
-                    {
-                        pictureBox.Width = tileDimension;
-                        pictureBox.Height = tileDimension;
-                        pictureBox.Location = new Point(i * (pictureBox.Height + 1), j * (pictureBox.Width + 1));
-                    }
-                    pictureBox.Click += tiles[index].Tile_Click;
-                    panel.Controls.Add(pictureBox);
-                    index++;
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
 
@@ -98,284 +106,270 @@ namespace Battlespire
 
         public static void MoveNPCMonsters()
         {
-
-
-            var query = from entity in Entities
-                        select new { entity.EntityId, entity.EntityType };
-
-            foreach (var entity in query)
+            try
             {
-                if (entity.EntityType == "monster")
+                var query = from entity in Entities
+                            select new { entity.EntityId, entity.EntityType };
+
+                foreach (var entity in query)
                 {
-                    DbConnection.MoveMonster(entity.EntityId);
+                    if (entity.EntityType == "monster")
+                    {
+                        DbConnection.MoveMonster(entity.EntityId);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
 
         public static void MoveItem(Player player)
         {
-            List<Tile> tiles = player.Inventory.Tiles;
-            List<Item> items = player.Inventory.Items;
-
-            // check if the tile has an item on it.
-            var query = from item in items
-                        join tile in tiles on item.TileId equals tile.Id
-                        where tile.Id == InitialTile.Id
-                        select new { item.EntityId };
-
-
-            var query1 = from item in items
-                         join tile in tiles on item.TileId equals tile.Id
-                         where tile.Id == TargetTile.Id
-                         select new { item.EntityId };
-
-
-            var zip = query.Zip(query1);
-            foreach (var pair in zip)
+            try
             {
-                if (pair.First != null)
-                {
-                    DbConnection.MoveInventoryItem(pair.First.EntityId, InitialTile.Id, TargetTile.Id);
-                }
-                if (pair.Second != null)
-                {
+                List<Tile> tiles = player.Inventory.Tiles;
+                List<Item> items = player.Inventory.Items;
 
-                    DbConnection.MoveInventoryItem(pair.Second.EntityId, TargetTile.Id, InitialTile.Id);
-                }
-            }
-            if (!query1.Any())
-            {
+                // check if the tile has an item on it.
+                var query = from item in items
+                            join tile in tiles on item.TileId equals tile.Id
+                            where tile.Id == InitialTile.Id
+                            select new { item.EntityId };
 
-                foreach (var item in query)
+
+                var query1 = from item in items
+                             join tile in tiles on item.TileId equals tile.Id
+                             where tile.Id == TargetTile.Id
+                             select new { item.EntityId };
+
+
+                var zip = query.Zip(query1);
+                foreach (var pair in zip)
                 {
-                    if (item != null)
+                    if (pair.First != null)
                     {
-                        DbConnection.MoveInventoryItem(item.EntityId, InitialTile.Id, TargetTile.Id);
+                        DbConnection.MoveInventoryItem(pair.First.EntityId, InitialTile.Id, TargetTile.Id);
+                    }
+                    if (pair.Second != null)
+                    {
+
+                        DbConnection.MoveInventoryItem(pair.Second.EntityId, TargetTile.Id, InitialTile.Id);
                     }
                 }
-            }
-            
+                if (!query1.Any())
+                {
 
-            player.Inventory.GetItems();
-            TargetTile = null;
-            InitialTile = null;
-            player.Inventory.InventoryForm.UpdateBoard();
+                    foreach (var item in query)
+                    {
+                        if (item != null)
+                        {
+                            DbConnection.MoveInventoryItem(item.EntityId, InitialTile.Id, TargetTile.Id);
+                        }
+                    }
+                }
+
+
+                player.Inventory.GetItems();
+                TargetTile = null;
+                InitialTile = null;
+                player.Inventory.InventoryForm.UpdateBoard();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         public static void MoveItem(Chest chest)
         {
-            List<Tile> tiles = chest.Inventory.Tiles;
-            List<Item> items = chest.Inventory.Items;
-
-            // check if the tile has an item on it.
-            var query = from item in items
-                        join tile in tiles on item.TileId equals tile.Id
-                        where tile.Id == InitialTile.Id
-                        select new { item.EntityId };
-
-
-            var query1 = from item in items
-                         join tile in tiles on item.TileId equals tile.Id
-                         where tile.Id == TargetTile.Id
-                         select new { item.EntityId };
-
-
-            var zip = query.Zip(query1);
-            foreach (var pair in zip)
+            try
             {
-                if (pair.First != null)
-                {
-                    DbConnection.MoveInventoryItem(pair.First.EntityId, InitialTile.Id, TargetTile.Id);
-                }
-                if (pair.Second != null)
-                {
+                List<Tile> tiles = chest.Inventory.Tiles;
+                List<Item> items = chest.Inventory.Items;
 
-                    DbConnection.MoveInventoryItem(pair.Second.EntityId, TargetTile.Id, InitialTile.Id);
-                }
-            }
-            if (!query1.Any())
-            {
+                // check if the tile has an item on it.
+                var query = from item in items
+                            join tile in tiles on item.TileId equals tile.Id
+                            where tile.Id == InitialTile.Id
+                            select new { item.EntityId };
 
-                foreach (var item in query)
+
+                var query1 = from item in items
+                             join tile in tiles on item.TileId equals tile.Id
+                             where tile.Id == TargetTile.Id
+                             select new { item.EntityId };
+
+
+                var zip = query.Zip(query1);
+                foreach (var pair in zip)
                 {
-                    if (item != null)
+                    if (pair.First != null)
                     {
-                        DbConnection.MoveInventoryItem(item.EntityId, InitialTile.Id, TargetTile.Id);
+                        DbConnection.MoveInventoryItem(pair.First.EntityId, InitialTile.Id, TargetTile.Id);
+                    }
+                    if (pair.Second != null)
+                    {
+
+                        DbConnection.MoveInventoryItem(pair.Second.EntityId, TargetTile.Id, InitialTile.Id);
                     }
                 }
+                if (!query1.Any())
+                {
+
+                    foreach (var item in query)
+                    {
+                        if (item != null)
+                        {
+                            DbConnection.MoveInventoryItem(item.EntityId, InitialTile.Id, TargetTile.Id);
+                        }
+                    }
+                }
+
+
+                chest.Inventory.GetItems();
+                TargetTile = null;
+                InitialTile = null;
+                chest.Inventory.ChestTransferForm.UpdateBoard();
             }
-
-
-            chest.Inventory.GetItems();
-            TargetTile = null;
-            InitialTile = null;
-            chest.Inventory.ChestTransferForm.UpdateBoard();
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
         public static void TransferItem(Item item)
         {
-            DbConnection.TransferItem(item.EntityId, CurrentPlayer.EntityId);
-            InitialTile = null;
-
+            try
+            {
+                DbConnection.TransferItem(item.EntityId, CurrentPlayer.EntityId);
+                InitialTile = null;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
-        //public static void MoveItem(Chest chest)
-        //{
-        //    Console.WriteLine("MoveItem");
-        //    List<Tile> tiles = chest.Inventory.Tiles;
-        //    List<Item> items = chest.Inventory.Items;
-
-
-
-
-        //    // check if the tile has an item on it.
-        //    var query = from item in items
-        //                join tile in tiles on item.TileId equals tile.Id
-        //                where tile.Id == InitialTile.Id
-        //                select new { item.EntityId };
-
-
-        //    var query1 = from item in items
-        //                 join tile in tiles on item.TileId equals tile.Id
-        //                 where tile.Id == TargetTile.Id
-        //                 select new { item.EntityId };
-
-
-
-        //    var zip = query.Zip(query1);
-        //    foreach (var pair in zip)
-        //    {
-        //        if (pair.First != null)
-        //        {
-        //            DbConnection.MoveInventoryItem(pair.First.EntityId, InitialTile.Id, TargetTile.Id);
-        //        }
-        //        if (pair.Second != null)
-        //        {
-
-        //            DbConnection.MoveInventoryItem(pair.Second.EntityId, TargetTile.Id, InitialTile.Id);
-        //        }
-        //    }
-        //    if (!query1.Any())
-        //    {
-
-        //        foreach (var item in query)
-        //        {
-        //            if (item != null)
-        //            {
-        //                DbConnection.MoveInventoryItem(item.EntityId, InitialTile.Id, TargetTile.Id);
-        //            }
-        //        }
-        //    }
-
-        //    chest.Inventory.GetItems();
-        //    TargetTile = null;
-        //    InitialTile = null;
-        //    chest.Inventory.ChestTransferForm.UpdateBoard();
-        //}
-
 
         public static void ClearBoard(Control panel, List<Tile> tiles)
         {
-
-            //for (int i = 0; i < panel.Controls.Count; i++)
-            //{
-            //    Tile tile = tiles[i];
-            //    Control box = panel.Controls[i];
-
-            //    box.Name = tile.Id.ToString();
-            //    box.BackColor = Color.Gray;
-            //}
-            int i = 0;
-            foreach (var tile in tiles)
+            try
             {
-                Control box = panel.Controls[i];
-                box.Name = tile.Id.ToString();
-                if (tile.TileType == "wall")
+                int i = 0;
+                foreach (var tile in tiles)
                 {
-                    box.BackColor = Color.Black;
+                    Control box = panel.Controls[i];
+                    box.Name = tile.Id.ToString();
+                    if (tile.TileType == "wall")
+                    {
+                        box.BackColor = Color.Black;
+                    }
+                    else if (tile.TileType == "exit")
+                    {
+                        box.BackColor = Color.Beige;
+                    }
+                    else
+                    {
+                        box.BackColor = Color.Gray;
+                    }
+                    i++;
                 }
-                else if (tile.TileType == "exit")
-                {
-                    box.BackColor = Color.Beige;
-                }
-                else
-                {
-                    box.BackColor = Color.Gray;
-                }
-                i++;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
 
 
         public static void UpdateGameBoard(Control panel, List<Tile> tiles, List<Entity> entities)
         {
-            ClearBoard(panel, tiles);
-            var query = from entity in entities
-                        join tile in tiles on entity.TileId equals tile.Id
-                        select new { entity.EntityId, entity.TileId, entity.EntityType };
-
-
-
-            foreach (var entity in query)
+            try
             {
-                if (entity.EntityId == CurrentPlayer.EntityId)
-                {
-                    panel.Controls[entity.TileId.ToString()].BackColor = Color.Purple;
-                }
-                else if (entity.EntityType == "player")
-                {
-                    panel.Controls[entity.TileId.ToString()].BackColor = Color.Green;
-                }
-                else if (entity.EntityType == "monster")
-                {
-                    panel.Controls[entity.TileId.ToString()].BackColor = Color.Red;
-                }
-                else if (entity.EntityType == "chest")
-                {
-                    panel.Controls[entity.TileId.ToString()].BackColor = Color.Yellow;
-                }
-            }
+                ClearBoard(panel, tiles);
+                var query = from entity in entities
+                            join tile in tiles on entity.TileId equals tile.Id
+                            select new { entity.EntityId, entity.TileId, entity.EntityType };
 
-            panel.Controls[CurrentPlayer.TileId.ToString()].BackColor = Color.BlueViolet;
+                foreach (var entity in query)
+                {
+                    if (entity.EntityId == CurrentPlayer.EntityId)
+                    {
+                        panel.Controls[entity.TileId.ToString()].BackColor = Color.Purple;
+                    }
+                    else if (entity.EntityType == "player")
+                    {
+                        panel.Controls[entity.TileId.ToString()].BackColor = Color.Green;
+                    }
+                    else if (entity.EntityType == "monster")
+                    {
+                        panel.Controls[entity.TileId.ToString()].BackColor = Color.Red;
+                    }
+                    else if (entity.EntityType == "chest")
+                    {
+                        panel.Controls[entity.TileId.ToString()].BackColor = Color.Yellow;
+                    }
+                }
+
+                panel.Controls[CurrentPlayer.TileId.ToString()].BackColor = Color.BlueViolet;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
 
-        // is being passed old tiles and items
         public static void UpdateInventoryBoard(Control panel, List<Tile> tiles, List<Item> items)
         {
-            ClearBoard(panel, tiles);
-            var query = from item in items
-                        join tile in tiles on item.TileId equals tile.Id
-                        select new { item.EntityId, item.TileId, item.Name, item.IsEquipped };
-
-            foreach (var item in query)
+            try
             {
-                if (item.Name.StartsWith("Amulet"))
+                ClearBoard(panel, tiles);
+                var query = from item in items
+                            join tile in tiles on item.TileId equals tile.Id
+                            select new { item.EntityId, item.TileId, item.Name, item.IsEquipped };
+
+                foreach (var item in query)
                 {
-                    panel.Controls[item.TileId.ToString()].BackColor = Color.Green;
+                    if (item.Name.StartsWith("Amulet"))
+                    {
+                        panel.Controls[item.TileId.ToString()].BackColor = Color.Green;
+                    }
+                    else if (item.Name.StartsWith("Sword"))
+                    {
+                        panel.Controls[item.TileId.ToString()].BackColor = Color.Orange;
+                    }
+                    else if (item.Name.StartsWith("Armour"))
+                    {
+                        panel.Controls[item.TileId.ToString()].BackColor = Color.Red;
+                    }
+                    else if (item.Name.StartsWith("Shield"))
+                    {
+                        panel.Controls[item.TileId.ToString()].BackColor = Color.Blue;
+                    }
+                    if (item.IsEquipped == true)
+                    {
+                        panel.Controls[item.TileId.ToString()].BackColor = Color.Pink;
+                    }
                 }
-                else if (item.Name.StartsWith("Sword"))
-                {
-                    panel.Controls[item.TileId.ToString()].BackColor = Color.Orange;
-                }
-                else if (item.Name.StartsWith("Armour"))
-                {
-                    panel.Controls[item.TileId.ToString()].BackColor = Color.Red;
-                }
-                else if (item.Name.StartsWith("Shield"))
-                {
-                    panel.Controls[item.TileId.ToString()].BackColor = Color.Blue;
-                }
-                if (item.IsEquipped == true)
-                {
-                    panel.Controls[item.TileId.ToString()].BackColor = Color.Pink;
-                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
             }
         }
 
         internal static void DamageEntity(int attackerId, int defenderId)
         {
-            DbConnection.DamageEntity(attackerId, defenderId);
-            Mainform.ReloadGame();
-            //CurrentPlayer = DbConnection.LoadPlayer(PlayerName);
+            try
+            {
+                DbConnection.DamageEntity(attackerId, defenderId);
+                Mainform.ReloadGame();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(string.Format("Something went wrong.\n{0}", ex.Message));
+            }
         }
     }
 }
