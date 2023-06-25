@@ -18,6 +18,9 @@ call createAccount('Rhylei','Rhylei1@aureate.dev', '');
 
 
 
+update account 
+	set attempts  = attempts + 1 
+	where username = 'asdf'
 
 
 

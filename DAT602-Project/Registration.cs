@@ -30,7 +30,7 @@ namespace Battlespire
 
                 LoginAndRegistrationDAO db_connection = new();
 
-                string accountCreationResult = db_connection.RegisterUser(username, password, email);
+                string accountCreationResult = db_connection.RegisterUser(username, email, password);
                 if (accountCreationResult.StartsWith("Success"))
                 {
                     MessageBox.Show("Account created successfully.");

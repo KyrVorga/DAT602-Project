@@ -159,7 +159,7 @@ login:begin
 			update account 
 			set attempts  = attempts + 1 
 			where username = _username;
-		
+			commit;
 			signal sqlstate '45000'
 				set message_text = 'Error: The Login attempt failed.', mysql_errno = 1000;
 		end if;
